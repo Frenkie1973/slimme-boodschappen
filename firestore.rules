@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null && request.auth.token.email_verified == true; }
+    function mail() { return request.auth.token.email.lower(); }
+    function allowed() { return signedIn() && exists(/databases/$(database)/documents/access/$(mail())); }
+    function isAdmin() { return allowed() && get(/databases/$(database)/documents/access/$(mail())).data.role == 'admin'; }
+
+    // Aanbiedingen en status: alleen lezen voor goedgekeurde gebruikers; schrijven alleen door de sync (Admin SDK)
+    match /offers/{id}      { allow read: if allowed(); allow write: if false; }
+    match /meta/status      { allow read: if allowed(); allow write: if false; }
+    // Instellingen (bronnen aan/uit): alleen beheerder
+    match /meta/config      { allow read: if allowed(); allow write: if isAdmin(); }
+    // Toegangslijst: beheerder beheert; gebruiker mag alleen zijn eigen regel zien
+    match /access/{email}   { allow read: if isAdmin() || (signedIn() && email == mail()); allow write: if isAdmin(); }
+    match /{document=**}    { allow read, write: if false; }
+  }
+}
