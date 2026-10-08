@@ -1,0 +1,30 @@
+name: Aanbiedingen synchroniseren
+
+on:
+  schedule:
+    - cron: "15 4 * * *"    # 06:15 NL-zomertijd
+    - cron: "15 16 * * *"   # 18:15 NL-zomertijd
+  workflow_dispatch: {}     # handmatig starten via GitHub > Actions
+
+concurrency:
+  group: sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Installeren
+        working-directory: sync
+        run: npm install --no-audit --no-fund
+      - name: Synchroniseren
+        working-directory: sync
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          PRIJSPROFEET_API_KEY: ${{ secrets.PRIJSPROFEET_API_KEY }}
+        run: node sync.mjs
