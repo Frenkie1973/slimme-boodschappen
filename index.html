@@ -113,6 +113,15 @@ table.adm{width:100%;border-collapse:collapse;font-size:14px}
 table.adm td,table.adm th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left}
 .toggle{display:flex;align-items:center;gap:10px;padding:6px 0}
 .toggle input{width:22px;height:22px}
+.suggest{border:2px solid var(--brand);border-radius:12px;margin-top:6px;overflow:hidden;background:var(--paper)}
+.sug{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:17px;padding:12px 14px;min-height:48px;cursor:pointer}
+.sug:active,.sug:hover{background:var(--soft)}
+.sug-main{display:block;font-weight:700}
+.sug-sub{display:block;font-size:14px;color:var(--muted);margin-top:2px}
+.sug.concept .sug-main{color:var(--brand)}
+.sug.free{color:var(--muted)}
+.sug-head{padding:8px 14px;font-size:14px;color:var(--muted);font-weight:700}
+.dym{display:block;width:100%;text-align:left;border:0;background:var(--warn-bg);color:var(--warn);font:inherit;font-size:17px;padding:12px 14px;min-height:48px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -153,9 +162,10 @@ table.adm td,table.adm th{padding:6px 4px;border-bottom:1px solid var(--line);te
   <section class="block">
     <h2>Mijn lijst</h2>
     <div class="add">
-      <input type="text" id="itemInput" placeholder="bv. 2 liter melk" autocomplete="off" enterkeyhint="done">
+      <input type="text" id="itemInput" placeholder="Zoek product, bv. huzarensalade" autocomplete="off" enterkeyhint="done">
       <button class="btn2" id="addBtn" aria-label="Artikel toevoegen">+</button>
     </div>
+    <div id="suggest" class="suggest hidden" role="listbox"></div>
     <ul class="items" id="itemList"></ul>
     <p class="muted" id="emptyList">Nog niets op de lijst. Je kunt ook meerdere regels tegelijk plakken.</p>
     <button class="link" id="sampleBtn">Voorbeeldlijst laden</button>
@@ -196,6 +206,7 @@ table.adm td,table.adm th{padding:6px 4px;border-bottom:1px solid var(--line);te
 <footer class="src">Aanbiedingen via <a href="https://www.prijsprofeet.nl" target="_blank" rel="noopener">PrijsProfeet</a> · Reguliere prijzen via <a href="https://www.checkjebon.nl" target="_blank" rel="noopener">Checkjebon.nl</a> · Winkels © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a><br>Prijzen zijn indicatief; de prijs in de winkel is leidend.</footer>
 </main>
 <script>
+
 /* ===================== CONFIG ===================== */
 const CONFIG = {
   defaultMaxDistanceKm: 15,
@@ -236,6 +247,11 @@ const CONFIG = {
     eieren:    { qty: '10 st', must: /\b(eieren|scharreleieren|vrije uitloop eieren|biologische eieren)\b/, alt: null, ex: /paas|chocola|snoep|salade|noodle|pasta|kinder|kwartel|gekookte|omelet/ },
     druiven:   { qty: '500 g', must: /\bdruiven\b/, alt: null, ex: /confituur|drink|sap|mr cool|jam|rozijn|snoep|gedroogd|wijn/ },
     bananen:   { qty: null,    must: /\b(bananen|banaan|bananentros)\b/, alt: null, ex: /chips|yoghurt|drink|smoothie|snoep|baby|brood|cake|knijp/ },
+    'halfvolle melk': { qty: '1 l', must: /\bhalfvolle\b.*\bmelk\b|\bmelk\b.*\bhalfvol/, alt: /\b(lactosevrije|houdbare)\b/, ex: /koffie|choco|karne|kokos|haver|soja|amandel|poeder|drink|yoghurt|vla\b|pudding|kids|protein|\d+\s*x\s*200/ },
+    toiletpapier: { qty: null, must: /\b(toiletpapier|wc[- ]?papier|closetpapier)\b/, alt: null, ex: /vochtig|nat\b|keukenpapier|houder|tissues/ },
+    'cola zero':  { qty: '1.5 l', must: /\bcola\b.*\b(zero|zonder suiker)\b|\b(zero|zonder suiker)\b.*\bcola\b/, alt: /\bcola\b.*\blight\b/, ex: /cherry|vanilla|lime|snoep|rum|whisky|drop|lolly/ },
+    pindakaas:    { qty: '350 g', must: /\bpindakaas\b/, alt: null, ex: /koek|reep|snoep|saus|cracker|wafel|chocola|ijs\b|cups|repen|mueslireep/ },
+    huzarensalade: { qty: '400 g', must: /\bhuzaren\s?salade/, alt: null, ex: /broodje|snack|wrap/ },
     suiker:    { qty: '1 kg',  must: /\b(kristalsuiker|basterdsuiker|suiker wit|witte suiker|suiker)\b/, alt: null, ex: /vrij|poeder|brood|wafel|zonder|snoep|klontjes|siroop|spin|vanille/ }
   },
   globalExclude: /\b(display|proefverpakking|cadeau|geschenk|kerstpakket|maaltijdpakket|maaltijdmix|wereldgerecht)\b/
@@ -300,7 +316,8 @@ function relevance(termIn, text0) {
   }
   // onbekend product: alleen hele-woordmatch, altijd "onzeker" (70)
   const words = text.split(/[^a-z0-9]+/).filter(Boolean);
-  if (term.includes(' ') ? text.includes(term) : words.includes(term)) return 70;
+  if (term.includes(' ')) return text.includes(term) ? 85 : 0;   // exacte (meerwoordige) productnaam, bv. gekozen uit de zoeker
+  if (words.includes(term)) return 70;
   return 0;
 }
 
@@ -407,6 +424,131 @@ function advise(items, chains, km, min, eurPerKm, maxStores, today) {
   const partial = !complete.length ? singles.slice().sort((a, b) => a.missing.length - b.missing.length || a.goods - b.goods)[0] : null;
   return { baskets, singles, cheapest, smartest, easiest, partial };
 }
+
+/* ===================== Productzoeker (lokaal, fuzzy) ===================== */
+/* Algemene productbegrippen met synoniemen en schrijfwijzen. Kiezen = vergelijken over alle merken en ketens. */
+const CONCEPTS = [
+  ['huzarensalade', 'huzaren salade', 'huzarensla'], ['halfvolle melk', 'melk halfvol', 'halfvol melk', 'halfvolle'], ['volle melk', 'melk vol'], ['magere melk', 'melk mager'],
+  ['karnemelk', 'karne melk'], ['toiletpapier', 'wc papier', 'wcpapier', 'wc-papier', 'wc rollen', 'toilet papier', 'closetpapier'], ['keukenpapier', 'keuken rol', 'keukenrol'],
+  ['cola zero', 'cola zonder suiker', 'coca cola zero', 'zero cola', 'cola light'], ['cola', 'coca cola', 'coca-cola'], ['pindakaas', 'pinda kaas'],
+  ['yoghurt', 'yoghurt naturel', 'joghurt'], ['kwark', 'magere kwark'], ['vla'], ['roomboter', 'boter', 'room boter'], ['margarine', 'halvarine'],
+  ['eieren', 'ei', 'eiren', 'scharreleieren'], ['brood', 'volkorenbrood', 'bruinbrood', 'witbrood'], ['kaas', 'jonge kaas', 'belegen kaas', 'kaasplakken'],
+  ['kipfilet', 'kippenfilet', 'kip filet'], ['gehakt', 'rundergehakt', 'half om half gehakt'], ['rookworst'], ['ham', 'beenham', 'achterham'],
+  ['koffie', 'koffiebonen', 'filterkoffie'], ['koffiepads', 'koffie pads', 'senseo pads'], ['thee', 'theezakjes'], ['suiker', 'kristalsuiker'], ['bloem', 'tarwebloem'],
+  ['rijst', 'zilvervliesrijst', 'pandanrijst'], ['pasta', 'penne', 'fusilli'], ['spaghetti'], ['macaroni'], ['aardappelen', 'aardappels', 'piepers'],
+  ['uien', 'ui', 'uitjes'], ['tomaten', 'tomaat'], ['komkommer'], ['paprika', 'paprikas'], ['sla', 'ijsbergsla'], ['wortels', 'wortelen', 'peen'],
+  ['bananen', 'banaan'], ['appels', 'appel', 'elstar', 'jonagold'], ['peren', 'peer'], ['sinaasappels', 'sinaasappel'], ['druiven', 'druif'], ['aardbeien', 'aardbei'],
+  ['sinaasappelsap', 'jus d\'orange', 'jus dorange'], ['appelsap'], ['bier', 'pils'], ['chips', 'paprikachips'], ['koekjes', 'koek'], ['chocolade', 'chocola', 'reep chocolade'],
+  ['hagelslag', 'hagel'], ['jam', 'aardbeienjam'], ['mayonaise', 'mayo', 'fritessaus'], ['ketchup', 'tomatenketchup'], ['wasmiddel', 'waspoeder', 'wascapsules'],
+  ['wasverzachter'], ['afwasmiddel', 'afwas middel'], ['vaatwastabletten', 'vaatwasser tabletten', 'vaatwas tabs'], ['tandpasta'], ['shampoo'], ['douchegel', 'douche gel'],
+  ['deodorant', 'deo'], ['luiers'], ['vuilniszakken', 'afvalzakken'], ['kattenvoer'], ['hondenvoer'], ['olijfolie'], ['zonnebloemolie'], ['zout'], ['knoflook'],
+  ['champignons'], ['broccoli'], ['bloemkool'], ['spinazie'], ['pizza', 'diepvriespizza'], ['ijs', 'ijsje'], ['slagroom'], ['kookroom'], ['creme fraiche', 'crème fraîche'],
+  ['chocolademelk', 'choco melk'], ['frikandellen', 'frikandel'], ['kroketten', 'kroket'], ['friet', 'patat', 'frites'], ['appelmoes'], ['cornflakes'], ['muesli'],
+  ['beschuit'], ['crackers'], ['ontbijtkoek'], ['stroopwafels'], ['water', 'mineraalwater', 'spa'], ['wijn', 'rode wijn', 'witte wijn']
+].map(([name, ...syn]) => ({ name, syn, keys: [name, ...syn].map(x => x.toLowerCase()) }));
+
+const compact = s => norm(s).replace(/[^a-z0-9]/g, '');
+/* Afstand met verwisseling (OSA); stopt zodra 'max' overschreden wordt */
+function osa(a, b, max) {
+  const la = a.length, lb = b.length; if (Math.abs(la - lb) > max) return max + 1;
+  let p2 = null, p1 = Array.from({ length: lb + 1 }, (_, j) => j);
+  for (let i = 1; i <= la; i++) {
+    const c = [i]; let best = i;
+    for (let j = 1; j <= lb; j++) {
+      let v = Math.min(p1[j] + 1, c[j - 1] + 1, p1[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      if (p2 && i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) v = Math.min(v, p2[j - 2] + 1);
+      c.push(v); if (v < best) best = v;
+    }
+    if (best > max) return max + 1; p2 = p1; p1 = c;
+  }
+  return p1[lb];
+}
+const allowedDist = len => len <= 3 ? 0 : len <= 6 ? 1 : 2;
+const HOUSE = /^(ah|ah biologisch|jumbo|plus|lidl|dirk|1 de beste|g'woon|gwoon|deka|dekamarkt|hoogvliet|poiesz|spar|vomar|ekoplaza|aldi|milbona|everyday|euroshopper)\s+/;
+
+/* Index opbouwen uit ALLE bekende producten: normale prijzen (Checkjebon) + aanbiedingen (PrijsProfeet) */
+function buildSearchIndex(regularsByCj, offersByKey, today) {
+  const groups = new Map(), freq = new Map();
+  const add = (name, size, price, chain, kind, url) => {
+    if (!name || price == null || price < CONFIG.minPrice) return;
+    const nn = norm(name), key = nn + '|' + norm(size || '');
+    let g = groups.get(key);
+    if (!g) { g = { name, nn, size: size || '', chains: new Set(), best: null }; groups.set(key, g); for (const w of nn.split(/[^a-z0-9]+/)) if (w.length >= 3 && !/^\d/.test(w)) freq.set(w, (freq.get(w) || 0) + 1); }
+    g.chains.add(chain);
+    if (!g.best || price < g.best.p) g.best = { p: price, chain, kind, url };
+  };
+  for (const c of CONFIG.chains) {
+    for (const r of (c.cj && regularsByCj && regularsByCj[c.cj]) || []) add(r.n, r.s, r.p, c.name, 'regulier', r.url);
+    for (const o of (offersByKey && offersByKey[c.key]) || []) if (offerValidToday(o, today)) add(o.n, o.q, o.p, c.name, 'aanbieding', o.url);
+  }
+  for (const k of CONCEPTS) for (const s of k.keys) for (const w of norm(s).split(' ')) if (w.length >= 3) freq.set(w, (freq.get(w) || 0) + 50);
+  const list = [...groups.values()];
+  for (const g of list) { g.nc = g.chains.size; g.cn = g.nn.replace(/[^a-z0-9]/g, ''); }
+  const vocab = [...freq.keys()].sort();
+  return { list, freq, vocab, byLen: vocab.reduce((m, w) => ((m[w.length] = m[w.length] || []).push(w), m), {}) };
+}
+const isPrefixOfVocab = (idx, t) => { let lo = 0, hi = idx.vocab.length; while (lo < hi) { const m = (lo + hi) >> 1; if (idx.vocab[m] < t) lo = m + 1; else hi = m; } return lo < idx.vocab.length && idx.vocab[lo].startsWith(t); };
+function correctWord(idx, w) {
+  if (idx.freq.has(w) || isPrefixOfVocab(idx, w)) return { w, d: 0 };
+  const max = allowedDist(w.length); if (!max) return { w, d: 0, unknown: true };
+  let best = null;
+  for (let L = w.length - max; L <= w.length + max; L++) for (const v of idx.byLen[L] || []) {
+    const d = osa(w, v, max); if (d <= max && (!best || d < best.d || (d === best.d && idx.freq.get(v) > idx.freq.get(best.w)))) best = { w: v, d };
+  }
+  return best || { w, d: 0, unknown: true };
+}
+function matchConcept(q) {
+  const nq = norm(q), cq = compact(q); if (cq.length < 2) return null;
+  let exact = null, prefix = [], fuzzy = null;
+  for (const k of CONCEPTS) for (const s of k.keys) {
+    const cs = compact(s);
+    if (cs === cq || norm(s) === nq) { exact = k; break; }
+    if (cs.startsWith(cq) && cq.length >= 2) prefix.push(k);
+    const max = allowedDist(cq.length); const d = max ? osa(cq, cs, max) : 99;
+    if (d <= max && (!fuzzy || d < fuzzy.d)) fuzzy = { k, d };
+  }
+  return { exact, prefix: [...new Set(prefix)].slice(0, 3), fuzzy: exact ? null : fuzzy && fuzzy.k };
+}
+/* Zoeken: 1) begrip herkennen  2) woorden corrigeren (ook los/aaneen)  3) producten filteren.
+   Een correctie wordt nooit stilzwijgend toegepast: dan volgt "Bedoel je ...?" */
+function filterProducts(idx, toks) {
+  const out = [];
+  for (const g of idx.list) if (toks.every(t => g.nn.includes(t) || g.cn.includes(t))) out.push(g);
+  const first = toks[0];
+  out.sort((a, b) => ((b.nn.replace(HOUSE, '').startsWith(first)) - (a.nn.replace(HOUSE, '').startsWith(first))) || (b.nc - a.nc) || (a.nn.length - b.nn.length));
+  const seen = new Set();
+  return { total: out.length, list: out.filter(g => { const k = g.nn.replace(HOUSE, '') + '|' + norm(g.size); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 8) };
+}
+function searchProducts(idx, q, history) {
+  const nq = norm(q).replace(/[-_]/g, ' ').replace(/\s+/g, ' ').trim();
+  const res = { query: q, concept: null, conceptSure: false, didYouMean: null, products: [], total: 0, favorites: [] };
+  if (compact(nq).length < 2) return res;
+  const cm = matchConcept(nq);
+  let toks = nq.split(' '), corrected = false;
+  if (cm && cm.exact) { res.concept = cm.exact; res.conceptSure = true; toks = norm(cm.exact.name).split(' '); }
+  else if (idx) {
+    // woorden corrigeren; meerdere woorden ook aaneengeschreven proberen ("huzaren salede")
+    if (toks.length > 1) { const j = correctWord(idx, toks.join('')); if (!j.unknown && idx.freq.has(j.w)) { corrected = j.w !== toks.join(''); toks = [j.w]; } }
+    toks = toks.map(t => { const c = correctWord(idx, t); if (c.w !== t) corrected = true; return c.w; });
+    if (cm && cm.fuzzy) { res.concept = cm.fuzzy; corrected = true; toks = norm(cm.fuzzy.name).split(' '); }
+    else if (cm && cm.prefix.length) res.concept = cm.prefix[0];       // suggestie tijdens typen, niet "zeker"
+  }
+  if (idx) {
+    let f = filterProducts(idx, toks);
+    if (corrected && !f.total) { corrected = false; toks = nq.split(' '); f = filterProducts(idx, toks); if (res.concept && !res.conceptSure && cm && cm.fuzzy === res.concept) res.concept = null; }
+    res.products = f.list; res.total = f.total;
+    if (corrected && f.total) res.didYouMean = res.concept && !res.conceptSure && cm && cm.fuzzy === res.concept ? res.concept.name : toks.join(' ');
+  } else if (cm && cm.fuzzy) { res.concept = cm.fuzzy; res.didYouMean = cm.fuzzy.name; }
+  if (history) { const cq = compact(nq); res.favorites = Object.entries(history).filter(([n]) => { const c = compact(n); return c.includes(cq) || (cq.length > 3 && osa(cq, c.slice(0, cq.length), 1) <= 1); }).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([n]) => n); }
+  return res;
+}
+/* Wat er op het lijstje komt: huismerk-voorvoegsel eraf zodat de vergelijking over alle ketens werkt; A-merk blijft staan */
+function itemFromProduct(g) {
+  const name = g.name.replace(/\s+/g, ' ').trim().replace(new RegExp(HOUSE.source, 'i'), '').trim();
+  const sz = parseSize(g.size); if (!sz) return name;
+  const amt = sz.dim === 'ml' && sz.amount >= 1000 ? `${+(sz.amount / 1000).toFixed(2)} l` : sz.dim === 'g' && sz.amount >= 1000 ? `${+(sz.amount / 1000).toFixed(2)} kg` : `${sz.amount} ${sz.dim === 'st' ? 'stuks' : sz.dim}`;
+  return `${amt} ${name}`;
+}
 </script>
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
@@ -500,13 +642,42 @@ async function loadRegulars() {
   if ((DATA.config.disabled || []).includes('checkjebon')) { DATA.regulars = null; DATA.regStatus = 'uitgeschakeld'; return; }
   try {
     const cached = await idbGet('checkjebon').catch(() => null);
-    if (cached && Date.now() - cached.t < 20 * 36e5) { DATA.regulars = cached.data; DATA.regStatus = 'ok'; DATA.regDate = cached.t; return; }
+    if (cached && Date.now() - cached.t < 20 * 36e5) { DATA.regulars = cached.data; DATA.regStatus = 'ok'; DATA.regDate = cached.t; buildIndexSoon(); return; }
     const r = await fetch(CONFIG.checkjebonUrl, { cache: 'no-store' }); if (!r.ok) throw new Error('HTTP ' + r.status);
     const raw = await r.json(); const data = {};
     for (const s of raw) data[s.n] = (s.d || []).map(p => ({ n: p.n, p: p.p, s: p.s, url: s.u && p.l ? s.u + p.l : null }));
-    DATA.regulars = data; DATA.regStatus = 'ok'; DATA.regDate = Date.now();
+    DATA.regulars = data; DATA.regStatus = 'ok'; DATA.regDate = Date.now(); buildIndexSoon();
     idbSet('checkjebon', { t: Date.now(), data }).catch(() => {});
-  } catch (e) { DATA.regulars = null; DATA.regStatus = 'fout: ' + (e.message || e); }
+  } catch (e) { DATA.regulars = null; DATA.regStatus = 'fout: ' + (e.message || e); buildIndexSoon(); }
+}
+
+/* ---------- Productzoeker: suggesties tijdens het typen ---------- */
+let IDX = null, sugTimer = null, LASTSUG = null;
+const HIST_KEY = 'sb2_hist';
+const hist = () => { try { return JSON.parse(localStorage.getItem(HIST_KEY)) || {}; } catch (e) { return {}; } };
+function remember(t) { const h = hist(); h[t] = (h[t] || 0) + 1; try { localStorage.setItem(HIST_KEY, JSON.stringify(h)); } catch (e) {} }
+function buildIndexSoon() { setTimeout(() => { try { IDX = buildSearchIndex(DATA.regulars, DATA.offers, todayISO()); if (document.activeElement === $('itemInput')) renderSuggest(); } catch (e) { console.error(e); } }, 30); }
+function sugRow(add, main, sub, cls = '') { return `<button type="button" class="sug ${cls}" data-add="${esc(add)}"><span class="sug-main">${main}</span>${sub ? `<span class="sug-sub">${sub}</span>` : ''}</button>`; }
+function renderSuggest() {
+  const box = $('suggest'), q = $('itemInput').value, h = hist();
+  if (compact(q).length < 2) {
+    const fav = Object.entries(h).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([n]) => n);
+    if (!fav.length || document.activeElement !== $('itemInput')) { box.classList.add('hidden'); return; }
+    box.innerHTML = `<div class="sug-head">⭐ Vaak gekozen</div>` + fav.map(n => sugRow(n, esc(n), '', 'fav')).join('');
+    box.classList.remove('hidden'); return;
+  }
+  const r = searchProducts(IDX, q, h); LASTSUG = r; let html = '';
+  if (r.didYouMean) html += `<button type="button" class="dym" data-q="${esc(r.didYouMean)}">Bedoel je <b>${esc(r.didYouMean)}</b>?</button>`;
+  html += r.favorites.map(n => sugRow(n, '⭐ ' + esc(n), 'eerder gekozen', 'fav')).join('');
+  if (r.concept) html += sugRow(r.concept.name, '🛒 ' + esc(r.concept.name[0].toUpperCase() + r.concept.name.slice(1)), 'alle merken en supermarkten vergelijken', 'concept');
+  for (const g of r.products) {
+    const b = g.best, price = b ? `${eur(b.p)} bij ${esc(b.chain)}${b.kind === 'aanbieding' ? ' <span class="pill p-ok">aanbieding</span>' : ''}` : 'geen actuele prijs';
+    html += sugRow(itemFromProduct(g), esc(g.name), [g.size && esc(g.size), price, g.nc > 1 ? `${g.nc} ketens` : ''].filter(Boolean).join(' · '));
+  }
+  if (!IDX) html += `<div class="sug-head">Productcatalogus wordt geladen…</div>`;
+  else if (!r.products.length && !r.concept) html += `<div class="sug-head">Geen product gevonden.</div>`;
+  html += sugRow(q.trim(), `+ "${esc(q.trim())}" toevoegen zoals getypt`, '', 'free');
+  box.innerHTML = html; box.classList.remove('hidden');
 }
 
 /* ---------- Lijst en instellingen ---------- */
@@ -518,9 +689,15 @@ function initList() {
     $('emptyList').classList.toggle('hidden', state.items.length > 0);
     $('itemList').querySelectorAll('button').forEach(b => b.onclick = () => { state.items.splice(+b.dataset.i, 1); save(); renderItems(); });
   };
-  const addItems = t => { t.split(/\n|,/).map(s => s.trim()).filter(Boolean).forEach(s => state.items.push(s)); save(); renderItems(); };
-  $('addBtn').onclick = () => { addItems($('itemInput').value); $('itemInput').value = ''; $('itemInput').focus(); };
-  $('itemInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('addBtn').click(); } });
+  const addItems = t => { t.split(/\n|,/).map(s => s.trim()).filter(Boolean).forEach(s => { state.items.push(s); remember(s); }); save(); renderItems(); };
+  const addOne = t => { t = (t || '').trim(); if (!t) return; state.items.push(t); remember(t); save(); renderItems(); $('itemInput').value = ''; $('suggest').classList.add('hidden'); $('itemInput').focus(); };
+  $('addBtn').onclick = () => { const v = $('itemInput').value; if (LASTSUG && LASTSUG.conceptSure && compact(LASTSUG.query) === compact(v)) addOne(LASTSUG.concept.name); else { addItems(v); $('itemInput').value = ''; $('suggest').classList.add('hidden'); $('itemInput').focus(); } };
+  $('itemInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('addBtn').click(); } else if (e.key === 'Escape') $('suggest').classList.add('hidden'); });
+  $('itemInput').addEventListener('input', () => { clearTimeout(sugTimer); sugTimer = setTimeout(renderSuggest, 120); });
+  $('itemInput').addEventListener('focus', renderSuggest);
+  $('suggest').addEventListener('mousedown', e => e.preventDefault());
+  $('suggest').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.q != null) { $('itemInput').value = b.dataset.q; renderSuggest(); $('itemInput').focus(); } else addOne(b.dataset.add); });
+  document.addEventListener('click', e => { if (!e.target.closest('#suggest') && e.target !== $('itemInput')) $('suggest').classList.add('hidden'); });
   $('itemInput').addEventListener('paste', e => { const t = (e.clipboardData || window.clipboardData).getData('text'); if (t.includes('\n')) { e.preventDefault(); addItems(t); } });
   $('sampleBtn').onclick = () => { state.items = ['2 liter melk', '1 koffie', '1 kaas', '500 g kipfilet', '1 cola', '1 wasmiddel', '1 brood']; save(); renderItems(); };
   renderItems();
