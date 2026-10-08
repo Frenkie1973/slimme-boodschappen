@@ -546,12 +546,25 @@ async function geocode(place, postcode) {
   const d = (await r.json()).response.docs[0]; if (!d) throw new Error(`"${q}" niet gevonden. Controleer woonplaats of postcode.`);
   const m = d.centroide_ll.match(/POINT\(([-\d.]+) ([-\d.]+)\)/); return { lat: +m[2], lon: +m[1], label: d.weergavenaam };
 }
+const STORES_URL = 'https://raw.githubusercontent.com/Frenkie1973/slimme-boodschappen/main/data/winkels.json';
+let STORE_DB = null;
+async function storeDb() {
+  if (STORE_DB) return STORE_DB;
+  try { const c = await idbGet('winkels'); if (c && Date.now() - c.t < 3 * 864e5) return (STORE_DB = c.data); } catch (e) {}
+  try { const r = await fetch(STORES_URL, { cache: 'no-store' }); if (r.ok) { const j = await r.json(); if (j.winkels && j.winkels.length) { STORE_DB = j.winkels; idbSet('winkels', { t: Date.now(), data: STORE_DB }).catch(() => {}); return STORE_DB; } } } catch (e) {}
+  return null;
+}
 async function findStores(home, maxKm) {
   const key = `sb2_st_${home.lat.toFixed(3)}_${home.lon.toFixed(3)}_${maxKm}`;
   try { const c = JSON.parse(localStorage.getItem(key)); if (c && Date.now() - c.t < 7 * 864e5) return c.s; } catch (e) {}
+  // 1) winkelbestand (wekelijks bijgewerkt door GitHub) – geen afhankelijkheid van een live dienst
+  const list = await storeDb();
+  if (list) return list.map(w => ({ name: w.n, chainKey: w.c, lat: w.lat, lon: w.lon, addr: w.a, airKm: haversineKm(home, w) })).filter(x => x.airKm <= maxKm);
+  // 2) reserve: live Overpass, drie servers, twee rondes
   const q = `[out:json][timeout:25];nwr["shop"="supermarket"](around:${Math.round(maxKm * 1000)},${home.lat},${home.lon});out center tags;`;
   let data = null;
-  for (const ep of ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter']) {
+  for (const ep of ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter', 'https://overpass.private.coffee/api/interpreter', 'https://overpass-api.de/api/interpreter']) {
+    if (data) break;
     try { const r = await fetch(ep, { method: 'POST', body: 'data=' + encodeURIComponent(q), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }); if (r.ok) { data = await r.json(); break; } } catch (e) {}
   }
   if (!data) throw new Error('Supermarkten zoeken lukt nu niet (OpenStreetMap). Probeer het over een minuut opnieuw.');
