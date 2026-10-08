@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f5c4d">
+<title>Slimme Boodschappen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+:root{
+  --bg:#eef3f1; --paper:#ffffff; --ink:#17241f; --muted:#5a6b64; --line:#d5e0db;
+  --brand:#0f5c4d; --brand-ink:#ffffff; --soft:#dcebe5;
+  --tag:#ffd23f; --tag-ink:#1b1400;
+  --ok:#1d7a42; --ok-bg:#e3f4e9; --warn:#8a5a00; --warn-bg:#fff3d6; --bad:#a3261d; --bad-bg:#fde9e7;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0e1714; --paper:#16221e; --ink:#e6efeb; --muted:#9db0a8; --line:#2a3a34;
+    --brand:#3fae8f; --brand-ink:#04140f; --soft:#1d332c;
+    --tag:#f5c518; --tag-ink:#1b1400;
+    --ok:#7ad9a0; --ok-bg:#163126; --warn:#f2c066; --warn-bg:#33280f; --bad:#ff9a90; --bad-bg:#3a1915;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font:18px/1.45 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  background:var(--bg); color:var(--ink);
+  padding:env(safe-area-inset-top,0px) 0 calc(32px + env(safe-area-inset-bottom,0px));
+}
+.wrap{max-width:640px;margin:0 auto;padding:0 14px}
+header.top{background:var(--brand);color:var(--brand-ink);padding:18px 0 14px}
+header.top h1{margin:0;font-size:26px;letter-spacing:-.01em}
+header.top p{margin:2px 0 0;opacity:.85;font-size:15px}
+nav.tabs{display:flex;gap:8px;margin-top:14px}
+nav.tabs button{flex:1;border:0;border-radius:12px;padding:12px;font:inherit;font-weight:700;background:rgba(255,255,255,.14);color:inherit;cursor:pointer}
+nav.tabs button[aria-selected="true"]{background:var(--paper);color:var(--ink)}
+section.block{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0}
+h2{font-size:20px;margin:0 0 10px}
+h3{font-size:18px;margin:0}
+label.f{display:block;font-weight:700;font-size:15px;margin:10px 0 4px;color:var(--muted)}
+input[type=text],input[type=number],textarea,select{
+  width:100%;font:inherit;padding:12px 14px;border:2px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink)
+}
+input:focus,textarea:focus,button:focus-visible{outline:3px solid var(--tag);outline-offset:1px}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1;min-width:0;border:2px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-weight:700;padding:12px 8px;border-radius:12px;cursor:pointer}
+.seg button[aria-pressed="true"]{border-color:var(--brand);background:var(--soft)}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:18px;font:inherit;font-size:20px;font-weight:700;background:var(--brand);color:var(--brand-ink);cursor:pointer}
+.btn:disabled{opacity:.6}
+.btn2{border:2px solid var(--brand);background:transparent;color:var(--brand);border-radius:12px;padding:12px 14px;font:inherit;font-weight:700;cursor:pointer}
+.link{background:none;border:0;color:var(--brand);font:inherit;font-weight:700;padding:8px 0;cursor:pointer;text-decoration:underline}
+.add{display:flex;gap:8px}
+.add input{flex:1}
+.add button{flex:0 0 auto;font-size:22px;padding:0 18px}
+ul.items{list-style:none;margin:12px 0 0;padding:0}
+ul.items li{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed var(--line)}
+ul.items li span{flex:1}
+ul.items li button{border:0;background:var(--bad-bg);color:var(--bad);width:44px;height:44px;border-radius:10px;font-size:20px;cursor:pointer}
+details.more{margin-top:10px}
+details.more summary{cursor:pointer;font-weight:700;color:var(--brand);padding:8px 0}
+.chains{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.chains label{display:flex;gap:8px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:10px}
+.chains input{width:22px;height:22px}
+.muted{color:var(--muted);font-size:15px}
+.status{margin:12px 0;padding:12px 14px;border-radius:12px;background:var(--soft);font-weight:700}
+.status.err{background:var(--bad-bg);color:var(--bad)}
+.demo-banner{background:var(--bad);color:#fff;text-align:center;font-weight:700;padding:8px;border-radius:10px;margin:10px 0}
+/* Resultaat als kassabon */
+.bon{background:var(--paper);border:1px solid var(--line);border-radius:6px 6px 0 0;padding:18px 16px 26px;margin:16px 0;position:relative;
+  -webkit-mask:linear-gradient(#000 0 0) top/100% calc(100% - 10px) no-repeat, radial-gradient(circle 7px at 10px 100%,transparent 6px,#000 7px) bottom/20px 10px repeat-x;
+          mask:linear-gradient(#000 0 0) top/100% calc(100% - 10px) no-repeat, radial-gradient(circle 7px at 10px 100%,transparent 6px,#000 7px) bottom/20px 10px repeat-x}
+.bon h2{font-size:24px}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:16px;margin:6px 0 4px}
+.big-save{font-size:30px;font-weight:700;margin:10px 0 4px}
+.store{border-top:2px dashed var(--line);padding-top:12px;margin-top:14px}
+.store .dist{color:var(--muted);font-size:15px}
+table.prices{width:100%;border-collapse:collapse;margin-top:8px;font-size:16px}
+table.prices td{padding:8px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+table.prices td.n{text-align:right;white-space:nowrap}
+.was{color:var(--muted);text-decoration:line-through}
+.tag{display:inline-block;background:var(--tag);color:var(--tag-ink);font-weight:700;padding:2px 8px;border-radius:4px 10px 10px 4px;white-space:nowrap}
+.sub{display:block;color:var(--muted);font-size:14px}
+.badge{display:inline-block;font-size:13px;font-weight:700;padding:1px 7px;border-radius:999px;margin-left:4px}
+.b-ok{background:var(--ok-bg);color:var(--ok)}.b-warn{background:var(--warn-bg);color:var(--warn)}.b-bad{background:var(--bad-bg);color:var(--bad)}
+.totals{border-top:2px solid var(--ink);margin-top:14px;padding-top:10px;font-size:16px}
+.totals div{display:flex;justify-content:space-between}
+.why{background:var(--soft);border-radius:12px;padding:12px 14px;margin-top:14px;font-size:16px}
+.alts{display:grid;gap:8px;margin:12px 0}
+.alt{display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;width:100%;border:2px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;padding:12px 14px;border-radius:14px;cursor:pointer}
+.alt[aria-pressed="true"]{border-color:var(--brand);background:var(--soft)}
+.alt b{display:block}
+.offerlist{font-size:15px}
+.offerlist div{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.offerlist button{border:0;background:none;color:var(--bad);font-size:18px;cursor:pointer}
+pre.details{white-space:pre-wrap;font-size:13px;background:var(--bg);padding:10px;border-radius:10px;overflow-x:auto}
+.hidden{display:none!important}
+@media (prefers-reduced-motion:no-preference){.bon{animation:print .35s ease-out}@keyframes print{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1>🛒 Slimme Boodschappen</h1>
+    <p>De beste 1 of 2 supermarkten voor jouw lijst</p>
+    <nav class="tabs" role="tablist">
+      <button id="tabList" role="tab" aria-selected="true">Boodschappen</button>
+      <button id="tabOffers" role="tab" aria-selected="false">Aanbiedingen</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<!-- ================= TAB 1: BOODSCHAPPEN ================= -->
+<div id="viewList">
+  <section class="block">
+    <h2>Mijn lijst</h2>
+    <div class="add">
+      <input type="text" id="itemInput" placeholder="bv. 2 liter melk" autocomplete="off" enterkeyhint="done">
+      <button class="btn2" id="addBtn" aria-label="Artikel toevoegen">+</button>
+    </div>
+    <ul class="items" id="itemList"></ul>
+    <p class="muted" id="emptyList">Nog niets op de lijst. Je kunt ook meerdere regels tegelijk plakken.</p>
+    <button class="link" id="sampleBtn">Voorbeeldlijst laden</button>
+  </section>
+
+  <section class="block">
+    <h2>Waar en hoe</h2>
+    <div class="row">
+      <div><label class="f" for="place">Woonplaats</label><input type="text" id="place" placeholder="bv. Tubbergen"></div>
+      <div><label class="f" for="postcode">Postcode</label><input type="text" id="postcode" placeholder="optioneel"></div>
+    </div>
+    <label class="f" for="maxKm">Maximale afstand: <span id="maxKmLabel"></span> km</label>
+    <input type="range" id="maxKm" min="2" max="30" step="1" style="width:100%">
+    <label class="f">Maximaal aantal winkels</label>
+    <div class="seg" id="maxStoresSeg">
+      <button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button>
+    </div>
+    <label class="f">Voorkeur</label>
+    <div class="seg" id="prefSeg">
+      <button data-v="cheapest">Goedkoopst</button><button data-v="balanced">Beste balans</button><button data-v="easiest">Minste winkels</button>
+    </div>
+    <details class="more">
+      <summary>Winkels kiezen</summary>
+      <div class="chains" id="chainBoxes"></div>
+    </details>
+  </section>
+
+  <button class="btn" id="searchBtn">Zoek aanbiedingen</button>
+  <div id="status" class="status hidden" role="status"></div>
+  <div id="result"></div>
+</div>
+
+<!-- ================= TAB 2: AANBIEDINGEN ================= -->
+<div id="viewOffers" class="hidden">
+  <section class="block">
+    <h2>Waar komen de aanbiedingen vandaan?</h2>
+    <p class="muted">Supermarkten bieden geen openbare koppeling voor hun aanbiedingen. De app verzint niets: hij gebruikt alleen wat hieronder is ingevoerd of in <b>aanbiedingen.json</b> op GitHub staat.</p>
+    <div id="sourceStatus" class="offerlist"></div>
+    <label style="display:flex;gap:10px;align-items:center;margin-top:12px;font-weight:700">
+      <input type="checkbox" id="demoToggle" style="width:24px;height:24px"> Demo-aanbiedingen gebruiken (nep, om te testen)
+    </label>
+  </section>
+
+  <section class="block">
+    <h2>Aanbiedingen toevoegen</h2>
+    <p class="muted">Eén aanbieding per regel:<br><b>Winkel; Product; Verpakking; Normale prijs; Aanbieding; Geldig t/m</b></p>
+    <p class="muted">Aanbieding mag een prijs zijn, of <b>1+1</b>, <b>2e halve prijs</b>, <b>2 voor 5,00</b>, <b>25%</b>.</p>
+    <textarea id="pasteBox" rows="6" placeholder="Jumbo; Douwe Egberts filterkoffie; 500 g; 8,99; 6,99; 12-10&#10;Lidl; Kipfilet; 1 kg; 10,99; 7,99; 12-10"></textarea>
+    <div id="pasteMsg" class="muted"></div>
+    <button class="btn" id="pasteBtn" style="margin-top:10px">Toevoegen</button>
+  </section>
+
+  <section class="block">
+    <h2>Ingevoerd op dit toestel</h2>
+    <div id="manualList" class="offerlist"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn2" id="exportBtn">Exporteer als aanbiedingen.json</button>
+      <button class="btn2" id="clearBtn" style="border-color:var(--bad);color:var(--bad)">Alles wissen</button>
+    </div>
+  </section>
+</div>
+</main>
+
+<!-- ================= KERN (zonder schermcode) ================= -->
+<script id="core">
+/* ---------- CONFIG: alles wat je wilt bijstellen staat hier ---------- */
+const CONFIG = {
+  defaultMaxDistanceKm: 10,
+  defaultMaxStores: 2,
+  defaultPreference: 'balanced',
+  eurPerKm: 0.40,          // waarde van 1 gereden km (brandstof + tijd), basis voor afstandsstraf
+  eurPerExtraStore: 4.00,  // "gedoe" van een extra winkel, basis voor winkelstraf
+  minRelevance: 60,        // lager = geen match
+  sureRelevance: 80,       // vanaf hier geldt een match als zeker
+  offersFile: 'data/aanbiedingen.json',
+  cacheDays: 7,
+  preferences: {
+    cheapest: { label: 'Zo goedkoop mogelijk',     savingsWeight: 1.0, distanceWeight: 0.2, storeCountWeight: 0.2 },
+    balanced: { label: 'Beste balans',             savingsWeight: 1.0, distanceWeight: 0.5, storeCountWeight: 0.7 },
+    easiest:  { label: 'Zo min mogelijk winkels',  savingsWeight: 0.6, distanceWeight: 1.0, storeCountWeight: 1.2 }
+  },
+  chains: [
+    { key: 'ah',         name: 'Albert Heijn', re: /albert\s*heijn|^ah(\s|$)/i },
+    { key: 'jumbo',      name: 'Jumbo',        re: /jumbo/i },
+    { key: 'lidl',       name: 'Lidl',         re: /lidl/i },
+    { key: 'aldi',       name: 'Aldi',         re: /aldi/i },
+    { key: 'plus',       name: 'Plus',         re: /^plus(\s|$)/i },
+    { key: 'coop',       name: 'Coop',         re: /^coop|co-op/i },
+    { key: 'spar',       name: 'Spar',         re: /^spar/i },
+    { key: 'dirk',       name: 'Dirk',         re: /^dirk/i },
+    { key: 'vomar',      name: 'Vomar',        re: /vomar/i },
+    { key: 'hoogvliet',  name: 'Hoogvliet',    re: /hoogvliet/i },
+    { key: 'deka',       name: 'DekaMarkt',    re: /deka/i },
+    { key: 'poiesz',     name: 'Poiesz',       re: /poiesz/i },
+    { key: 'janlinders', name: 'Jan Linders',  re: /jan linders/i },
+    { key: 'nettorama',  name: 'Nettorama',    re: /nettorama/i },
+    { key: 'ekoplaza',   name: 'Ekoplaza',     re: /ekoplaza/i }
+  ],
+  /* Productwoordenlijst. same = zelfde categorie (80%), alt = alternatief (60%), exclude = nooit matchen.
+     Algemene regel daarnaast: "filterkoffie" telt als koffie (eindigt op koffie), "koffiemelk" niet. */
+  products: {
+    melk:      { same: ['halfvolle', 'volle melk', 'magere melk'], alt: ['lactosevrije melk'], exclude: ['koffiemelk', 'chocolademelk', 'karnemelk', 'kokosmelk', 'melkchocolade', 'havermelk', 'sojamelk', 'amandelmelk', 'melkpoeder'] },
+    koffie:    { same: ['koffiebonen', 'filterkoffie', 'snelfilter', 'espresso', 'koffiepads', 'koffiecups', 'douwe egberts', 'lavazza', 'perla', 'nescafe', 'senseo'], alt: ['oploskoffie'], exclude: ['koffiemelk', 'koffiecreamer', 'koffiekoek', 'koffiefilter', 'koffiezetapparaat'] },
+    kaas:      { same: ['gouda', 'edammer', 'belegen', 'kaasplakken'], alt: ['geraspte kaas'], exclude: ['kaasstengel', 'kaassouffle', 'kaasbroodje', 'roomkaas', 'smeerkaas', 'kaaskoek'] },
+    kipfilet:  { same: ['kippenfilet', 'kippenborst', 'kipfiletblokjes', 'kipfiletreepjes'], alt: ['kipdij', 'kippendij'], exclude: ['gerookte kipfilet', 'kipfilet vleeswaren', 'kipfilet beleg'] },
+    cola:      { same: ['coca-cola', 'coca cola'], alt: ['pepsi'], exclude: ['colasnoep', 'cola flesjes snoep'] },
+    wasmiddel: { same: ['waspoeder', 'wascapsules', 'wasmiddel', 'ariel', 'robijn', 'persil', 'omo', 'witte reus', 'neutral'], alt: [], exclude: ['afwasmiddel', 'wasverzachter', 'vlekverwijderaar'] },
+    brood:     { same: ['volkoren', 'tarwebrood', 'bruinbrood', 'casino', 'meergranen'], alt: ['stokbrood', 'bollen', 'pistolets'], exclude: ['broodbeleg', 'paneermeel', 'broodtrommel', 'broodmix', 'ontbijtkoek'] },
+    boter:     { same: ['roomboter', 'margarine'], alt: [], exclude: ['pindakaas', 'boterkoek', 'appelstroop'] },
+    eieren:    { same: ['eieren', 'scharreleieren', 'vrije uitloop eieren'], alt: [], exclude: ['paaseieren', 'chocolade eieren'] }
+  }
+};
+
+/* ---------- Hulpfuncties ---------- */
+const norm = s => (s || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
+const eur = n => n == null ? '–' : n.toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' });
+const num = s => { if (s == null) return null; const t = String(s).replace('€', '').replace(',', '.').trim(); if (t === '' || t === '-') return null; const v = parseFloat(t); return isNaN(v) ? null : v; };
+const todayISO = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
+function haversineKm(a, b) {
+  const R = 6371, r = x => x * Math.PI / 180;
+  const dLat = r(b.lat - a.lat), dLon = r(b.lon - a.lon);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+function parseNLDate(s) {
+  if (!s) return null;
+  s = String(s);
+  let m = s.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+  m = s.match(/(\d{1,2})[-\/.](\d{1,2})(?:[-\/.](\d{2,4}))?/);
+  if (!m) return null;
+  let y = m[3] ? +m[3] : new Date().getFullYear();
+  if (y < 100) y += 2000;
+  return `${y}-${String(m[2]).padStart(2, '0')}-${String(m[1]).padStart(2, '0')}`;
+}
+function chainOf(text) {
+  const t = (text || '').trim();
+  return CONFIG.chains.find(c => c.re.test(t)) || null;
+}
+
+/* ---------- UserInput: boodschappenregel ontleden ---------- */
+const UNIT_WORDS = {
+  kg: ['g', 1000], kilo: ['g', 1000], g: ['g', 1], gr: ['g', 1], gram: ['g', 1], ons: ['g', 100],
+  l: ['ml', 1000], liter: ['ml', 1000], ltr: ['ml', 1000], ml: ['ml', 1], cl: ['ml', 10]
+};
+function parseItem(line) {
+  const raw = (line || '').trim();
+  if (!raw) return null;
+  const s = norm(raw);
+  const m = s.match(/^(\d+(?:[.,]\d+)?)\s*(kg|kilo|gram|gr|g|ons|liter|ltr|l|ml|cl|stuks|stuk|st|pakken|pak|flessen|fles|zakken|zak|blikken|blik|potten|pot|dozen|doos|x)?\.?\s+(.+)$/);
+  let qty = 1, unitWord = null, name = s;
+  if (m) { qty = parseFloat(m[1].replace(',', '.')); unitWord = m[2] || null; name = m[3]; }
+  name = name.replace(/^(pak|pakken|fles|flessen|zak|blik|pot|doos|stuks?)\s+/, '').trim();
+  const u = unitWord && UNIT_WORDS[unitWord];
+  return u ? { raw, name, qty, dim: u[0], amount: qty * u[1] } : { raw, name, qty, dim: null, amount: null };
+}
+
+/* ---------- PriceNormalizer ---------- */
+function parseSize(str) {
+  const s = norm(str);
+  if (!s) return null;
+  let m = s.match(/(\d+)\s*x\s*(\d+(?:[.,]\d+)?)\s*(kg|kilo|gram|gr|g|liter|ltr|l|ml|cl)\b/);
+  if (m) { const u = UNIT_WORDS[m[3]]; return { dim: u[0], amount: +m[1] * parseFloat(m[2].replace(',', '.')) * u[1] }; }
+  m = s.match(/(\d+(?:[.,]\d+)?)\s*(kg|kilo|gram|gr|g|liter|ltr|l|ml|cl)\b/);
+  if (m) { const u = UNIT_WORDS[m[2]]; return { dim: u[0], amount: parseFloat(m[1].replace(',', '.')) * u[1] }; }
+  m = s.match(/(\d+)\s*(stuks|stuk|st)\b/);
+  if (m) return { dim: 'st', amount: +m[1] };
+  return null;
+}
+function packsNeeded(item, size) {
+  if (item.dim && size && size.dim === item.dim && size.amount > 0) return Math.max(1, Math.ceil(item.amount / size.amount - 1e-6));
+  if (!item.dim) return Math.max(1, Math.round(item.qty));
+  return 1;
+}
+function costFor(o, n) {
+  const N = o.normal_price, t = o.terms || {};
+  switch (o.offer_type) {
+    case 'plus': { if (N == null) return null; const g = t.a + t.b; return (Math.floor(n / g) * t.a + Math.min(n % g, t.a)) * N; }
+    case 'second_half': if (N == null) return null; return Math.floor(n / 2) * 1.5 * N + (n % 2) * N;
+    case 'multi': { const rest = n % t.x; if (rest && N == null) return null; return Math.floor(n / t.x) * t.y + rest * (N || 0); }
+    case 'percent': if (N == null) return null; return n * N * (1 - t.p / 100);
+    default: return o.offer_price != null ? n * o.offer_price : null;
+  }
+}
+function offerLabel(o) {
+  const t = o.terms || {};
+  switch (o.offer_type) {
+    case 'plus': return `${t.a}+${t.b} gratis`;
+    case 'second_half': return '2e halve prijs';
+    case 'multi': return `${t.x} voor ${eur(t.y)}`;
+    case 'percent': return `${t.p}% korting`;
+    default: return eur(o.offer_price);
+  }
+}
+function parseOfferCell(cell) {
+  const s = norm(cell);
+  let m;
+  if ((m = s.match(/^(\d+)\s*\+\s*(\d+)/))) return { offer_type: 'plus', terms: { a: +m[1], b: +m[2] }, offer_price: null };
+  if (/(2e|tweede)\s*halve/.test(s)) return { offer_type: 'second_half', terms: {}, offer_price: null };
+  if ((m = s.match(/(\d+)\s*voor\s*€?\s*(\d+(?:[.,]\d+)?)/))) return { offer_type: 'multi', terms: { x: +m[1], y: num(m[2]) }, offer_price: null };
+  if ((m = s.match(/(\d+(?:[.,]\d+)?)\s*%/))) return { offer_type: 'percent', terms: { p: num(m[1]) }, offer_price: null };
+  const p = num(s);
+  return p != null ? { offer_type: 'discount', terms: {}, offer_price: p } : null;
+}
+/* Plakregel: Winkel; Product; Verpakking; Normale prijs; Aanbieding; Geldig t/m */
+function parsePasteLine(line) {
+  const f = line.split(/[;|\t]/).map(x => x.trim());
+  if (f.length < 5) return { error: 'te weinig velden (minimaal 5, gescheiden door ;)' };
+  const chain = chainOf(f[0]);
+  if (!chain) return { error: `winkel "${f[0]}" niet herkend` };
+  const off = parseOfferCell(f[4]);
+  if (!off) return { error: `aanbieding "${f[4]}" niet begrepen` };
+  return {
+    offer: {
+      store: chain.name, product: f[1], brand: '', unit: f[2] || '',
+      normal_price: num(f[3]), ...off,
+      valid_from: null, valid_until: parseNLDate(f[5]),
+      conditions: f[6] || '', source: 'Handmatig ingevoerd', origin: 'manual'
+    }
+  };
+}
+
+/* ---------- ProductMatcher ---------- */
+function relevance(termIn, offer) {
+  const term = norm(termIn);
+  const text = norm([offer.product, offer.brand].filter(Boolean).join(' '));
+  const prod = norm(offer.product);
+  const d = CONFIG.products[term] || {};
+  if ((d.exclude || []).some(x => text.includes(x))) return { score: 15, kind: 'niet' };
+  if (prod === term) return { score: 100, kind: 'exact' };
+  const words = text.split(/[^a-z0-9]+/).filter(Boolean);
+  if (term.includes(' ') ? text.includes(term) : words.includes(term)) return { score: 100, kind: 'exact' };
+  if ((d.same || []).some(x => text.includes(x))) return { score: 80, kind: 'categorie' };
+  if (!term.includes(' ') && words.some(w => w.length > term.length && w.endsWith(term))) return { score: 80, kind: 'categorie' };
+  if ((d.alt || []).some(x => text.includes(x))) return { score: 60, kind: 'alternatief' };
+  if (term.includes(' ')) { const r = relevance(term.split(' ').pop(), offer); return { score: Math.min(r.score, 70), kind: r.score >= 60 ? 'alternatief' : 'niet' }; }
+  return { score: 0, kind: 'niet' };
+}
+
+function evaluateOffer(item, o) {
+  const rel = relevance(item.name, o);
+  if (rel.score < CONFIG.minRelevance) return null;
+  const size = parseSize(o.unit);
+  const n = packsNeeded(item, size);
+  const cost = costFor(o, n);
+  const normal = o.normal_price != null ? n * o.normal_price : null;
+  const saving = cost != null && normal != null ? Math.max(0, normal - cost) : null;
+  let unitPrice = null;
+  if (size && cost != null) unitPrice = size.dim === 'st' ? { v: cost / (n * size.amount), u: 'stuk' } : { v: cost / (n * size.amount) * 1000, u: size.dim === 'g' ? 'kg' : 'liter' };
+  // waarde voor rangschikking: besparing naar verhouding van wat je echt nodig hebt (1 kg kopen voor 500 g telt half)
+  const fit = item.dim && size && size.dim === item.dim ? Math.min(1, item.amount / (n * size.amount)) : 1;
+  const value = saving != null ? saving * fit : null;
+  let hint = '';
+  if (fit < 0.75) hint = 'Grotere verpakking dan nodig';
+  else if (saving === 0 && o.offer_type === 'plus') hint = `Neem er ${o.terms.b} gratis bij`;
+  else if (saving === 0 && o.offer_type === 'multi') hint = `Actieprijs pas vanaf ${o.terms.x} stuks`;
+  else if (saving === 0 && o.offer_type === 'second_half') hint = 'Korting pas vanaf 2 stuks';
+  const sure = !o.demo && rel.score >= CONFIG.sureRelevance && saving != null;
+  return { item, offer: o, rel, n, cost, normal, saving, value, unitPrice, hint, certainty: sure ? 'zeker' : 'waarschijnlijk' };
+}
+function bestOfferFor(item, offers) {
+  let best = null, bestRank = -Infinity;
+  for (const o of offers) {
+    const e = evaluateOffer(item, o);
+    if (!e) continue;
+    const rank = (e.value ?? 0) * e.rel.score / 100 + e.rel.score / 10000;
+    if (rank > bestRank) { best = e; bestRank = rank; }
+  }
+  return best;
+}
+function isValidNow(o, today) {
+  return (!o.valid_from || o.valid_from <= today) && (!o.valid_until || o.valid_until >= today);
+}
+
+/* ---------- ShoppingOptimizer ---------- */
+function subsets(n, k) {
+  const out = [];
+  const rec = (start, cur) => { if (cur.length) out.push(cur.slice()); if (cur.length === k) return; for (let i = start; i < n; i++) { cur.push(i); rec(i + 1, cur); cur.pop(); } };
+  rec(0, []);
+  return out;
+}
+function permutations(a) { if (a.length <= 1) return [a]; return a.flatMap((x, i) => permutations([...a.slice(0, i), ...a.slice(i + 1)]).map(p => [x, ...p])); }
+function routeKm(idx, matrix) {
+  let best = Infinity, bestOrder = idx;
+  for (const p of permutations(idx)) {
+    let d = matrix[0][p[0] + 1];
+    for (let i = 1; i < p.length; i++) d += matrix[p[i - 1] + 1][p[i] + 1];
+    d += matrix[p[p.length - 1] + 1][0];
+    if (d < best) { best = d; bestOrder = p; }
+  }
+  return { km: best, order: bestOrder };
+}
+function scoreOf(c, prefKey) {
+  const w = CONFIG.preferences[prefKey];
+  return w.savingsWeight * c.savings - w.distanceWeight * c.km * CONFIG.eurPerKm - w.storeCountWeight * (c.n - 1) * CONFIG.eurPerExtraStore;
+}
+/* chains: [{key,name,offers,...}] ; matrix: km, index 0 = thuis, i+1 = chains[i] */
+function optimize(items, chains, matrix, maxStores) {
+  const cand = items.map(it => chains.map(ch => bestOfferFor(it, ch.offers)));
+  const K = Math.min(chains.length, maxStores + 1, 4);
+  const combos = [];
+  for (const idx of subsets(chains.length, K)) {
+    const assign = items.map((it, i) => {
+      let best = null;
+      for (const c of idx) { const o = cand[i][c]; if (o && (!best || (o.value ?? 0) > (best.value ?? 0))) best = { ...o, chainIdx: c }; }
+      return best;
+    });
+    if (idx.length > 1 && idx.some(c => !assign.some(a => a && a.chainIdx === c && (a.saving ?? 0) > 0))) continue; // winkel die niets oplevert
+    const savings = assign.reduce((s, a) => s + (a && a.saving ? a.saving : 0), 0);
+    const r = routeKm(idx, matrix);
+    combos.push({ idx: r.order, assign, savings, km: r.km, n: idx.length });
+  }
+  return combos;
+}
+
+/* ---------- RecommendationEngine ---------- */
+function recommend(combos, maxStores, prefKey) {
+  if (!combos.length) return null;
+  const within = combos.filter(c => c.n <= maxStores);
+  const byScore = (k) => (a, b) => scoreOf(b, k) - scoreOf(a, k) || a.km - b.km;
+  const best = within.slice().sort(byScore(prefKey))[0];
+  const cheapest = combos.slice().sort((a, b) => b.savings - a.savings || a.n - b.n || a.km - b.km)[0];
+  const easiest = combos.filter(c => c.n === 1).sort(byScore('easiest'))[0];
+  const plans = [{ key: 'best', title: '🥇 ' + CONFIG.preferences[prefKey].label, combo: best }];
+  const same = (a, b) => a && b && a.idx.slice().sort().join() === b.idx.slice().sort().join();
+  if (cheapest && !same(cheapest, best)) plans.push({ key: 'cheap', title: '🥈 Goedkoopste', combo: cheapest });
+  if (easiest && !same(easiest, best) && !same(easiest, cheapest)) plans.push({ key: 'easy', title: '🥉 Makkelijkste', combo: easiest });
+  return { best, cheapest, easiest, plans };
+}
+function explain(rec, combos, chains) {
+  const b = rec.best, out = [];
+  const names = c => c.idx.map(i => chains[i].name).join(' + ');
+  const fewer = combos.filter(c => c.n === b.n - 1).sort((x, y) => y.savings - x.savings)[0];
+  const more = combos.filter(c => c.n === b.n + 1).sort((x, y) => y.savings - x.savings)[0];
+  if (fewer) out.push(`Alleen ${names(fewer)} levert ${eur(fewer.savings)} op. ${b.n === 2 ? 'De tweede winkel' : 'Een extra winkel'} voegt ${eur(b.savings - fewer.savings)} toe voor ${Math.max(0, b.km - fewer.km).toFixed(1).replace('.', ',')} km extra rijden.`);
+  if (more && more.savings > b.savings) {
+    const ord = ['', '', 'tweede', 'derde', 'vierde'][more.n] || 'extra';
+    out.push(`Voor ${eur(more.savings - b.savings)} extra besparing moet je wel een ${ord} winkel bezoeken (${names(more)}, ${Math.max(0, more.km - b.km).toFixed(1).replace('.', ',')} km extra).`);
+  }
+  if (!out.length) out.push(`Dit is de beste verhouding tussen besparing, afstand en aantal winkels binnen jouw instellingen.`);
+  return out;
+}
+
+/* ---------- LocationService (PDOK, overheid) ---------- */
+const LocationService = {
+  async geocode(place, postcode) {
+    const q = postcode ? `${postcode} ${place || ''}`.trim() : place;
+    const url = `https://api.pdok.nl/bzk/locatieserver/search/v3_1/free?q=${encodeURIComponent(q)}&fq=type:(postcode OR woonplaats)&rows=1`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('Locatiedienst niet bereikbaar');
+    const doc = (await r.json()).response.docs[0];
+    if (!doc) throw new Error(`"${q}" niet gevonden. Controleer woonplaats of postcode.`);
+    const m = doc.centroide_ll.match(/POINT\(([-\d.]+) ([-\d.]+)\)/);
+    return { lat: +m[2], lon: +m[1], label: doc.weergavenaam };
+  }
+};
+/* ---------- NearbyStoreService (OpenStreetMap / Overpass) ---------- */
+const NearbyStoreService = {
+  endpoints: ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter'],
+  async find(home, maxKm) {
+    const key = `sb_stores_${home.lat.toFixed(3)}_${home.lon.toFixed(3)}_${maxKm}`;
+    try { const c = JSON.parse(localStorage.getItem(key)); if (c && Date.now() - c.t < CONFIG.cacheDays * 864e5) return c.stores; } catch (e) {}
+    const q = `[out:json][timeout:25];nwr["shop"="supermarket"](around:${Math.round(maxKm * 1000)},${home.lat},${home.lon});out center tags;`;
+    let data = null, lastErr;
+    for (const ep of this.endpoints) {
+      try { const r = await fetch(ep, { method: 'POST', body: 'data=' + encodeURIComponent(q), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }); if (r.ok) { data = await r.json(); break; } lastErr = new Error('HTTP ' + r.status); } catch (e) { lastErr = e; }
+    }
+    if (!data) throw new Error('Supermarkten zoeken lukt nu niet (OpenStreetMap). Probeer het over een minuut opnieuw.');
+    const stores = data.elements.map(e => {
+      const t = e.tags || {};
+      const lat = e.lat ?? e.center?.lat, lon = e.lon ?? e.center?.lon;
+      const chain = chainOf(t.brand) || chainOf(t.name);
+      const addr = [t['addr:street'] && `${t['addr:street']} ${t['addr:housenumber'] || ''}`.trim(), t['addr:city']].filter(Boolean).join(', ');
+      return { name: t.name || t.brand || 'Supermarkt', chainKey: chain && chain.key, lat, lon, addr, airKm: haversineKm(home, { lat, lon }) };
+    }).filter(s => s.lat != null);
+    try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), stores })); } catch (e) {}
+    return stores;
+  }
+};
+/* ---------- Route (OSRM), terugval: hemelsbreed ---------- */
+const RouteService = {
+  async matrix(points) {
+    try {
+      const coords = points.map(p => `${p.lon},${p.lat}`).join(';');
+      const r = await fetch(`https://router.project-osrm.org/table/v1/driving/${coords}?annotations=distance,duration`);
+      const j = await r.json();
+      if (j.code !== 'Ok') throw new Error(j.code);
+      return { km: j.distances.map(row => row.map(m => m / 1000)), min: j.durations.map(row => row.map(s => s / 60)), approx: false };
+    } catch (e) {
+      return { km: points.map(a => points.map(b => haversineKm(a, b))), min: null, approx: true };
+    }
+  }
+};
+
+/* ---------- OfferCollector + OfferProviders ---------- */
+const JsonFileProvider = {
+  name: 'aanbiedingen.json (GitHub)',
+  async fetchOffers() {
+    try {
+      const r = await fetch(CONFIG.offersFile + '?t=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) return { offers: [], status: 'niet gevonden' };
+      const j = await r.json();
+      const offers = (j.offers || []).map(o => ({ ...o, origin: 'json', source: o.source || 'aanbiedingen.json' }));
+      return { offers, status: `${offers.length} aanbiedingen` + (j.bijgewerkt ? `, bijgewerkt ${j.bijgewerkt}` : '') };
+    } catch (e) { return { offers: [], status: 'niet bereikbaar (open je de app lokaal? Werkt wel via GitHub Pages)' }; }
+  }
+};
+const ManualProvider = {
+  name: 'Handmatig op dit toestel',
+  load() { try { return JSON.parse(localStorage.getItem('sb_offers_v1')) || []; } catch (e) { return []; } },
+  save(list) { try { localStorage.setItem('sb_offers_v1', JSON.stringify(list)); } catch (e) {} },
+  async fetchOffers() { const o = this.load(); return { offers: o, status: `${o.length} aanbiedingen` }; }
+};
+const DemoProvider = {
+  name: 'DEMO DATA',
+  async fetchOffers() {
+    const d = new Date(), day = (d.getDay() + 6) % 7;
+    const from = new Date(d - day * 864e5), to = new Date(+from + 6 * 864e5);
+    const iso = x => new Date(x.getTime() - x.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    const mk = (store, product, unit, normal, cell) => ({ store, product, brand: 'DEMO', unit, normal_price: normal, ...parseOfferCell(cell), valid_from: iso(from), valid_until: iso(to), conditions: '', source: 'DEMO DATA', demo: true, origin: 'demo' });
+    const offers = [
+      mk('Jumbo', 'Halfvolle melk', '1 l', 1.29, '2 voor 2,00'),
+      mk('Jumbo', 'Filterkoffie', '500 g', 7.49, '5,49'),
+      mk('Jumbo', 'Jong belegen kaas', '500 g', 6.99, '2e halve prijs'),
+      mk('Jumbo', 'Cola regular', '1,5 l', 2.39, '1+1'),
+      mk('Lidl', 'Kipfilet', '1 kg', 10.99, '8,49'),
+      mk('Lidl', 'Wasmiddel vloeibaar', '1,5 l', 9.99, '5,99'),
+      mk('Lidl', 'Volkoren brood', '800 g', 1.89, '1,49'),
+      mk('Albert Heijn', 'Koffiebonen', '1 kg', 15.99, '25%'),
+      mk('Albert Heijn', 'Koffiemelk', '0,5 l', 1.99, '1,49'),
+      mk('Albert Heijn', 'Kipfilet', '500 g', 6.49, '4,99'),
+      mk('Aldi', 'Cola zero', '1,5 l', 1.29, '0,99'),
+      mk('Aldi', 'Halfvolle melk', '1 l', 1.15, '0,99'),
+      mk('Plus', 'Gouda kaas jong', '450 g', 5.49, '4,29'),
+      mk('Coop', 'Pepsi max', '1,5 l', 2.19, '1,49')
+    ];
+    return { offers, status: `${offers.length} nep-aanbiedingen` };
+  }
+};
+const OfferCollector = {
+  async collect(useDemo) {
+    const providers = [JsonFileProvider, ManualProvider].concat(useDemo ? [DemoProvider] : []);
+    const today = todayISO(), byChain = {}, report = [];
+    let expired = 0;
+    for (const p of providers) {
+      const res = await p.fetchOffers();
+      report.push({ name: p.name, status: res.status });
+      for (const o of res.offers) {
+        const ch = chainOf(o.store);
+        if (!ch) continue;
+        if (!isValidNow(o, today)) { expired++; continue; }
+        (byChain[ch.key] = byChain[ch.key] || []).push(o);
+      }
+    }
+    return { byChain, report, expired };
+  }
+};
+</script>
+
+<!-- ================= SCHERM ================= -->
+<script>
+const $ = id => document.getElementById(id);
+const STATE_KEY = 'sb_state_v1';
+const state = Object.assign({
+  place: '', postcode: '', maxKm: CONFIG.defaultMaxDistanceKm, maxStores: CONFIG.defaultMaxStores,
+  pref: CONFIG.defaultPreference, chainsOn: {}, items: [], demo: false
+}, (() => { try { return JSON.parse(localStorage.getItem(STATE_KEY)) || {}; } catch (e) { return {}; } })());
+const save = () => { try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch (e) {} };
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const km = v => v.toFixed(1).replace('.', ',');
+
+/* Tabs */
+function showTab(t) {
+  $('tabList').setAttribute('aria-selected', t === 'list'); $('tabOffers').setAttribute('aria-selected', t === 'offers');
+  $('viewList').classList.toggle('hidden', t !== 'list'); $('viewOffers').classList.toggle('hidden', t !== 'offers');
+  if (t === 'offers') renderOffersTab();
+}
+$('tabList').onclick = () => showTab('list');
+$('tabOffers').onclick = () => showTab('offers');
+
+/* Lijst */
+function renderItems() {
+  $('itemList').innerHTML = state.items.map((t, i) => `<li><span>${esc(t)}</span><button aria-label="Verwijder ${esc(t)}" data-i="${i}">✕</button></li>`).join('');
+  $('emptyList').classList.toggle('hidden', state.items.length > 0);
+  $('itemList').querySelectorAll('button').forEach(b => b.onclick = () => { state.items.splice(+b.dataset.i, 1); save(); renderItems(); });
+}
+function addItems(text) {
+  text.split(/\n|,/).map(s => s.trim()).filter(Boolean).forEach(s => state.items.push(s));
+  save(); renderItems();
+}
+$('addBtn').onclick = () => { addItems($('itemInput').value); $('itemInput').value = ''; $('itemInput').focus(); };
+$('itemInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('addBtn').click(); } });
+$('itemInput').addEventListener('paste', e => {
+  const t = (e.clipboardData || window.clipboardData).getData('text');
+  if (t.includes('\n')) { e.preventDefault(); addItems(t); }
+});
+$('sampleBtn').onclick = () => { state.items = ['2 liter melk', '1 koffie', '1 kaas', '500 g kipfilet', '1 cola', '1 wasmiddel', '1 brood']; save(); renderItems(); };
+
+/* Instellingen */
+function bindSeg(id, key, cast) {
+  const seg = $(id);
+  const paint = () => seg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v) === String(state[key])));
+  seg.querySelectorAll('button').forEach(b => b.onclick = () => { state[key] = cast(b.dataset.v); save(); paint(); });
+  paint();
+}
+bindSeg('maxStoresSeg', 'maxStores', Number);
+bindSeg('prefSeg', 'pref', String);
+$('place').value = state.place; $('postcode').value = state.postcode;
+$('place').oninput = e => { state.place = e.target.value; save(); };
+$('postcode').oninput = e => { state.postcode = e.target.value.toUpperCase(); save(); };
+$('maxKm').value = state.maxKm; $('maxKmLabel').textContent = state.maxKm;
+$('maxKm').oninput = e => { state.maxKm = +e.target.value; $('maxKmLabel').textContent = state.maxKm; save(); };
+$('chainBoxes').innerHTML = CONFIG.chains.map(c => `<label><input type="checkbox" data-k="${c.key}" ${state.chainsOn[c.key] === false ? '' : 'checked'}> ${c.name}</label>`).join('');
+$('chainBoxes').querySelectorAll('input').forEach(i => i.onchange = () => { state.chainsOn[i.dataset.k] = i.checked; save(); });
+
+function setStatus(msg, err) { const s = $('status'); s.textContent = msg; s.classList.toggle('hidden', !msg); s.classList.toggle('err', !!err); }
+
+/* ---------- Hoofdflow ---------- */
+let LAST = null;
+$('searchBtn').onclick = async () => {
+  const items = state.items.map(parseItem).filter(Boolean);
+  if (!items.length) return setStatus('Zet eerst iets op je lijst.', true);
+  if (!state.place && !state.postcode) return setStatus('Vul je woonplaats of postcode in.', true);
+  $('searchBtn').disabled = true; $('result').innerHTML = '';
+  try {
+    setStatus('📍 Locatie opzoeken…');
+    const home = await LocationService.geocode(state.place, state.postcode);
+
+    setStatus('🏪 Supermarkten in de buurt zoeken…');
+    const stores = await NearbyStoreService.find(home, state.maxKm);
+    const nearest = {};
+    for (const s of stores) {
+      if (!s.chainKey || state.chainsOn[s.chainKey] === false || s.airKm > state.maxKm) continue;
+      if (!nearest[s.chainKey] || s.airKm < nearest[s.chainKey].airKm) nearest[s.chainKey] = s;
+    }
+    let branches = Object.values(nearest);
+    if (!branches.length) throw new Error(`Geen (geselecteerde) supermarkten gevonden binnen ${state.maxKm} km.`);
+
+    setStatus('🚗 Afstanden berekenen…');
+    let mx = await RouteService.matrix([home, ...branches]);
+    branches.forEach((b, i) => { b.km = mx.km[0][i + 1]; b.min = mx.min ? mx.min[0][i + 1] : null; });
+    const keep = branches.map((b, i) => b.km <= state.maxKm ? i : -1).filter(i => i >= 0);
+    const sub = rows => rows && [0, ...keep.map(i => i + 1)].map(r => [0, ...keep.map(i => i + 1)].map(c => rows[r][c]));
+    branches = keep.map(i => branches[i]);
+    mx = { km: sub(mx.km), min: sub(mx.min), approx: mx.approx };
+    if (!branches.length) throw new Error(`Geen supermarkten binnen ${state.maxKm} km rijafstand.`);
+
+    setStatus('🏷️ Aanbiedingen ophalen…');
+    const col = await OfferCollector.collect(state.demo);
+
+    setStatus('🧮 Beste combinatie berekenen…');
+    const chainsAll = branches.map(b => { const c = CONFIG.chains.find(x => x.key === b.chainKey); return { key: c.key, name: c.name, branch: b, offers: col.byChain[c.key] || [] }; });
+    const withIdx = chainsAll.map((c, i) => ({ c, i })).filter(x => x.c.offers.length);
+    const noData = chainsAll.filter(c => !c.offers.length);
+    if (!withIdx.length) {
+      setStatus('');
+      $('result').innerHTML = noDataView(home, chainsAll, col);
+      return;
+    }
+    const chains = withIdx.map(x => x.c);
+    const ix = [0, ...withIdx.map(x => x.i + 1)];
+    const matrix = ix.map(r => ix.map(c => mx.km[r][c]));
+    const combos = optimize(items, chains, matrix, state.maxStores);
+    const rec = recommend(combos, state.maxStores, state.pref);
+    LAST = { home, items, chains, noData, combos, rec, col, approx: mx.approx, stores, active: 0 };
+    setStatus('');
+    renderResult();
+  } catch (e) {
+    setStatus(e.message || String(e), true);
+  } finally {
+    $('searchBtn').disabled = false;
+  }
+};
+
+function noDataView(home, chainsAll, col) {
+  return `<section class="block"><h2>🔴 Geen actuele aanbiedingen</h2>
+  <p>Er zijn ${chainsAll.length} supermarkten gevonden rond ${esc(home.label)}, maar voor geen van deze winkels staan geldige aanbiedingen in de app.</p>
+  <p class="muted">${chainsAll.map(c => `${esc(c.name)} (${km(c.branch.km)} km)`).join(', ')}</p>
+  <p>Voeg aanbiedingen toe via de tab <b>Aanbiedingen</b>, of zet daar de demo aan om de app te testen.</p>
+  ${col.expired ? `<p class="muted">${col.expired} verlopen aanbiedingen genegeerd.</p>` : ''}</section>`;
+}
+
+function badge(e) {
+  if (e.offer.demo) return '<span class="badge b-bad">DEMO</span>';
+  if (e.certainty === 'zeker') return '<span class="badge b-ok">🟢 Zeker</span>';
+  return '<span class="badge b-warn">🟡 Controleer</span>';
+}
+
+function renderResult() {
+  const L = LAST, plan = L.rec.plans[L.active], c = plan.combo;
+  const usedDemo = c.assign.some(a => a && a.offer.demo);
+  const perStore = c.idx.map(i => ({ ch: L.chains[i], rows: c.assign.filter(a => a && a.chainIdx === i) }));
+  const none = L.items.filter((it, k) => !c.assign[k]);
+  const normalSum = c.assign.reduce((s, a) => s + (a && a.normal != null ? a.normal : 0), 0);
+  const costSum = c.assign.reduce((s, a) => s + (a && a.normal != null && a.cost != null ? a.cost : 0), 0);
+  const unknownPrice = c.assign.filter(a => a && a.saving == null);
+  const why = explain({ best: c }, L.combos, L.chains);
+  const distTxt = b => `${km(b.km)} km` + (L.approx ? ' hemelsbreed' : '') + (b.min != null ? `, ongeveer ${Math.round(b.min)} min rijden` : '');
+
+  let h = '';
+  if (usedDemo) h += '<div class="demo-banner">DEMO DATA: deze prijzen zijn nep</div>';
+  if (L.rec.plans.length > 1) {
+    h += '<div class="alts">' + L.rec.plans.map((p, i) => `<button class="alt" data-i="${i}" aria-pressed="${i === L.active}"><span><b>${p.title}</b><span class="muted">${p.combo.n} ${p.combo.n === 1 ? 'winkel' : 'winkels'}: ${p.combo.idx.map(x => esc(L.chains[x].name)).join(' + ')}</span></span><span class="tag">${eur(p.combo.savings)}</span></button>`).join('') + '</div>';
+  }
+  h += `<article class="bon"><h2>🛒 Beste boodschappenplan</h2>
+    <div class="facts"><span>📍 ${esc(L.home.label)}</span><span>🚗 max ${state.maxKm} km</span><span>🏪 ${c.n} ${c.n === 1 ? 'winkel' : 'winkels'}</span><span>🛣️ rondje ${km(c.km)} km${L.approx ? ' (hemelsbreed)' : ''}</span></div>
+    <div class="big-save">💰 ${eur(c.savings)} besparing</div>`;
+  perStore.forEach((s, n) => {
+    h += `<div class="store"><h3>${n + 1}. ${esc(s.ch.name)}</h3><div class="dist">${distTxt(s.ch.branch)}${s.ch.branch.addr ? '<br>' + esc(s.ch.branch.addr) : ''}</div>
+      <table class="prices"><tbody>` + s.rows.map(a => `<tr>
+        <td>${esc(a.item.raw)}<span class="sub">${esc(a.offer.product)}${a.offer.brand && a.offer.brand !== 'DEMO' ? ' (' + esc(a.offer.brand) + ')' : ''}, ${esc(a.offer.unit)}${a.n > 1 ? `, ${a.n}×` : ''}${a.rel.kind === 'alternatief' ? ' · <b>alternatief</b>' : ''}${a.hint ? '<br>💡 ' + esc(a.hint) : ''}${a.unitPrice ? `<br>${eur(a.unitPrice.v)} per ${a.unitPrice.u}` : ''}${a.offer.conditions ? '<br>' + esc(a.offer.conditions) : ''}</span></td>
+        <td class="n"><span class="was">${eur(a.offer.normal_price)}</span><br><span class="tag">${esc(offerLabel(a.offer))}</span><br>${badge(a)}</td></tr>`).join('') + `</tbody></table></div>`;
+  });
+  if (none.length) h += `<div class="store"><h3>Geen relevante aanbieding</h3><p class="muted" style="margin:6px 0 0">Koop deze gewoon bij ${esc(perStore[0].ch.name)}:</p><p style="margin:4px 0 0">${none.map(i => esc(i.raw)).join(' · ')}</p></div>`;
+  h += `<div class="totals">
+    <div><span>Normale prijs (artikelen in actie)</span><span>${eur(normalSum)}</span></div>
+    <div><span>Met aanbiedingen</span><span>${eur(costSum)}</span></div>
+    <div><b>Besparing</b><b>${eur(c.savings)}</b></div></div>
+    ${unknownPrice.length ? `<p class="muted">🟡 Van ${unknownPrice.length} artikel(en) is de normale prijs onbekend; die besparing is niet meegeteld.</p>` : ''}
+    <div class="why"><b>Waarom dit plan?</b><br>${why.map(esc).join('<br>')}</div>
+  </article>`;
+  if (L.noData.length) h += `<section class="block"><b>🔴 Geen actuele aanbiedingen bekend voor:</b><br><span class="muted">${L.noData.map(c => `${esc(c.name)} (${km(c.branch.km)} km)`).join(', ')}</span></section>`;
+  h += `<section class="block"><details class="more"><summary>Details</summary><pre class="details">${esc(detailsText())}</pre></details></section>`;
+  $('result').innerHTML = h;
+  $('result').querySelectorAll('.alt').forEach(b => b.onclick = () => { LAST.active = +b.dataset.i; renderResult(); });
+  $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function detailsText() {
+  const L = LAST, w = CONFIG.preferences[state.pref];
+  const lines = [];
+  lines.push(`Locatie: ${L.home.label} (${L.home.lat.toFixed(4)}, ${L.home.lon.toFixed(4)})`);
+  lines.push(`Afstanden: ${L.approx ? 'HEMELSBREED (routeservice niet bereikbaar)' : 'rijafstand via OSRM'}`);
+  lines.push(`Supermarkten in OpenStreetMap binnen straal: ${L.stores.length}`);
+  lines.push(`Bronnen: ${L.col.report.map(r => `${r.name}: ${r.status}`).join(' | ')}`);
+  if (L.col.expired) lines.push(`Verlopen aanbiedingen genegeerd: ${L.col.expired}`);
+  lines.push(`Voorkeur: ${w.label} (besparing ${w.savingsWeight}, afstand ${w.distanceWeight} × €${CONFIG.eurPerKm}/km, winkels ${w.storeCountWeight} × €${CONFIG.eurPerExtraStore})`);
+  lines.push('', 'Top-combinaties (score = besparing − afstandsstraf − winkelstraf):');
+  L.combos.slice().sort((a, b) => scoreOf(b, state.pref) - scoreOf(a, state.pref)).slice(0, 8).forEach(c =>
+    lines.push(`  ${c.idx.map(i => L.chains[i].name).join(' + ')}: besparing ${eur(c.savings)}, ${km(c.km)} km, score ${scoreOf(c, state.pref).toFixed(2)}`));
+  return lines.join('\n');
+}
+
+/* ---------- Tab Aanbiedingen ---------- */
+async function renderOffersTab() {
+  $('demoToggle').checked = !!state.demo;
+  const j = await JsonFileProvider.fetchOffers();
+  const m = ManualProvider.load();
+  $('sourceStatus').innerHTML = `<div><span>📄 aanbiedingen.json (GitHub)</span><b>${esc(j.status)}</b></div><div><span>✍️ Op dit toestel</span><b>${m.length} aanbiedingen</b></div>`;
+  const today = todayISO();
+  $('manualList').innerHTML = m.length ? m.map((o, i) => `<div><span><b>${esc(o.store)}</b> ${esc(o.product)} ${esc(o.unit)}<br><span class="muted">${esc(offerLabel(o))}${o.normal_price != null ? ' (normaal ' + eur(o.normal_price) + ')' : ''} · t/m ${esc(o.valid_until || '?')}${isValidNow(o, today) ? '' : ' · <b style="color:var(--bad)">verlopen</b>'}</span></span><button data-i="${i}" aria-label="Verwijder">✕</button></div>`).join('') : '<p class="muted">Nog niets ingevoerd.</p>';
+  $('manualList').querySelectorAll('button').forEach(b => b.onclick = () => { const l = ManualProvider.load(); l.splice(+b.dataset.i, 1); ManualProvider.save(l); renderOffersTab(); });
+}
+$('demoToggle').onchange = e => { state.demo = e.target.checked; save(); };
+$('pasteBtn').onclick = () => {
+  const lines = $('pasteBox').value.split('\n').map(s => s.trim()).filter(Boolean);
+  const list = ManualProvider.load(), errs = [];
+  let ok = 0;
+  lines.forEach((l, i) => { const r = parsePasteLine(l); if (r.error) errs.push(`Regel ${i + 1}: ${r.error}`); else { list.push(r.offer); ok++; } });
+  ManualProvider.save(list);
+  $('pasteMsg').innerHTML = `${ok} toegevoegd.` + (errs.length ? '<br><span style="color:var(--bad)">' + errs.map(esc).join('<br>') + '</span>' : '');
+  if (!errs.length) $('pasteBox').value = '';
+  renderOffersTab();
+};
+$('exportBtn').onclick = async () => {
+  const j = await JsonFileProvider.fetchOffers();
+  const strip = o => { const { origin, ...rest } = o; return rest; };
+  const all = [...j.offers.map(strip), ...ManualProvider.load().map(strip)].filter(o => isValidNow(o, todayISO()));
+  const blob = new Blob([JSON.stringify({ _uitleg: 'Actuele aanbiedingen voor Slimme Boodschappen', bijgewerkt: todayISO(), offers: all }, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'aanbiedingen.json'; a.click();
+};
+$('clearBtn').onclick = () => { if (confirm('Alle handmatig ingevoerde aanbiedingen op dit toestel wissen?')) { ManualProvider.save([]); renderOffersTab(); } };
+
+renderItems();
+</script>
+</body>
+</html>
