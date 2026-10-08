@@ -617,7 +617,7 @@ async function search() {
     setStatus('🧮 Vergelijken…');
     const list = usable.map(x => x.c);
     const adv = advise(items, list, kmM, minM, state.eurKm, state.maxStores, todayISO());
-    LAST = { home, items, chains: list, noData, adv, approx: mx.approx, open: 0 };
+    LAST = { home, items, chains: list, noData, adv, approx: mx.approx, open: 1 };
     setStatus(''); renderResult();
   } catch (e) { setStatus(e.message || String(e), true); }
   finally { $('searchBtn').disabled = false; }
@@ -669,9 +669,10 @@ function renderResult() {
       ${p ? `<p>Meeste producten: <b>${esc(L.chains[p.idx[0]].name)}</b> (${L.items.length - p.missing.length} van ${L.items.length}). Ontbreekt: ${p.missing.map(m => esc(m.raw)).join(', ')}.</p>` : ''}</section>`;
   } else {
     h += `<h2 style="margin:16px 0 4px">🛒 Je advies</h2><p class="muted" style="margin:0 0 6px">📍 ${esc(L.home.label)} · max ${state.maxKm} km · ${L.items.length} producten</p>`;
-    h += adviceCard(0, '🥇', 'Goedkoopste supermarkt', A.cheapest, 'cheap');
-    h += adviceCard(1, '🧠', 'Slimste combinatie', A.smartest, 'smart');
-    h += adviceCard(2, '🚗', 'Makkelijkste keuze', A.easiest, 'easy');
+    h += adviceCard(1, '⭐', 'Beste keuze (incl. reiskosten)', A.smartest, 'smart');
+    h += `<p class="muted" style="margin:14px 0 2px">Andere opties</p>`;
+    h += adviceCard(2, '🚗', 'Dichtstbij met alles', A.easiest, 'easy');
+    h += adviceCard(0, '🏷️', 'Laagste boodschappenprijs (afstand niet meegewogen)', A.cheapest, 'cheap');
   }
   // overzicht per keten
   h += `<section class="block"><h3>Alle supermarkten in de buurt</h3><table class="prices"><tbody>${A.singles.map((s, i) => `<tr><td>${esc(L.chains[i].name)}<span class="sub">${dist(L.chains[i].branch)}</span></td><td class="n">${s.complete ? `<b>${eur(s.goods)}</b><br><span class="pill p-ok">volledig</span>` : `${eur(s.goods)}<br><span class="pill p-bad">${s.missing.length} ontbreekt</span>`}</td></tr>`).join('')}
