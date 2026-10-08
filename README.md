@@ -1,46 +1,60 @@
 # Slimme Boodschappen
 
-Mobiele webapp: boodschappenlijst invoeren → app zoekt supermarkten in de buurt → kiest de beste 1–2 winkels op basis van besparing, afstand en aantal winkels.
+Webapp die voor een boodschappenlijstje berekent waar je het voordeligst boodschappen doet, inclusief reiskosten.
 
-## Bestanden
+**Live:** https://frenkie1973.github.io/slimme-boodschappen/
+**Testversie:** https://frenkie1973.github.io/slimme-boodschappen/beta/
 
+## Wat de app doet
+- Inloggen met e-mail en wachtwoord. Alleen goedgekeurde e-mailadressen krijgen toegang (beheer via tab **Beheer**).
+- Productzoeker met suggesties, foutcorrectie ("huzaren salede" → huzarensalade) en "Bedoel je…?".
+- Vergelijkt per supermarkt in de buurt: aanbiedingen + normale prijzen, rijafstand en autokosten.
+- Advies: **Beste keuze (incl. reiskosten)**, Dichtstbij met alles, Laagste boodschappenprijs.
+- Statussen: ACTUEEL / VEROUDERD / NIET BESCHIKBAAR. Geen verzonnen prijzen, geen demo-data.
+
+## Bronnen
+| Gegevens | Bron | Bijgewerkt |
+|---|---|---|
+| Aanbiedingen (11 ketens) | PrijsProfeet API (gratis laag, bronvermelding verplicht) | 2× per dag via GitHub Actions |
+| Normale prijzen (10 ketens) | Checkjebon.nl (MIT) | dagelijks; app laadt 1× per 20 uur |
+| Supermarktlocaties | OpenStreetMap (ODbL) | wekelijks via GitHub Actions |
+| Locatie / routes | PDOK Locatieserver / OSRM | live |
+
+## Architectuur
 ```
-slimme-boodschappen/
-├── index.html              ← de complete app (alles in één bestand)
-├── data/
-│   └── aanbiedingen.json   ← actuele aanbiedingen (wekelijks bijwerken)
-└── README.md
+GitHub Pages ── index.html (app)            ← live
+             └─ beta/index.html             ← testversie
+GitHub Actions ─ sync.yml    (06:15 + 18:15) → PrijsProfeet → Firestore (alleen leesbaar voor goedgekeurde gebruikers)
+               └ winkels.yml (maandagnacht)  → OpenStreetMap → data/winkels.json
+Firebase (Spark, gratis) ─ Authentication + Firestore (regels: firestore.rules)
 ```
 
-## Online zetten (GitHub Pages)
+## Mappenstructuur
+```
+index.html                 app (één bestand)
+beta/index.html            testversie
+data/winkels.json          supermarktlocaties (automatisch)
+sync/sync.mjs              aanbiedingen ophalen → Firestore
+sync/winkels.mjs           supermarktlocaties ophalen
+sync/package.json
+.github/workflows/sync.yml
+.github/workflows/winkels.yml
+firestore.rules            beveiligingsregels (kopie; actief in Firebase-console)
+```
+`data/aanbiedingen.json` wordt niet meer gebruikt (was voor v1).
 
-1. Maak op GitHub een nieuwe repository, bv. `slimme-boodschappen`.
-2. Upload `index.html`, `README.md` en de map `data/` (Add file → Upload files).
-3. Settings → Pages → Source: *Deploy from a branch* → `main` / `(root)` → Save.
-4. Na ±1 minuut staat de app op `https://<jouw-naam>.github.io/slimme-boodschappen/`.
-5. Op de telefoon openen en via "Zet op beginscherm" als app vastzetten.
+## Beheer
+- **Gebruiker toevoegen:** app → Beheer → Toegang → e-mailadres → Toevoegen. Gebruiker maakt zelf een account aan en bevestigt de mail (kan in *Ongewenste e-mail* belanden).
+- **Synchronisatie handmatig starten:** GitHub → Actions → "Aanbiedingen synchroniseren" → *Run workflow*.
+- **Bron tijdelijk uitzetten:** app → Beheer → vinkje uit.
+- **Oude versie terugzetten:** branch `v1-backup`.
 
-## Aanbiedingen bijwerken
+## Geheimen
+- `FIREBASE_SERVICE_ACCOUNT` staat alleen in GitHub → Settings → Secrets. Nooit in code of chat zetten.
+- De Firebase *web*-configuratie in `index.html` is openbaar van aard; beveiliging zit in de Firestore-regels en in de domeinbeperking van de websleutel.
 
-Twee manieren:
+## Kosten
+€0: Firebase Spark (geen betaalmethode gekoppeld), GitHub Actions gratis voor openbare repo, PrijsProfeet gratis laag.
 
-- **In de app** (tab *Aanbiedingen*): regels plakken in het formaat
-  `Winkel; Product; Verpakking; Normale prijs; Aanbieding; Geldig t/m`
-  Voorbeeld: `Jumbo; Douwe Egberts filterkoffie; 500 g; 8,99; 6,99; 12-10`
-  Aanbieding mag ook zijn: `1+1`, `2e halve prijs`, `2 voor 5,00`, `25%`.
-  Wordt bewaard op dat toestel.
-- **Gedeeld via GitHub**: in de app op *Exporteer als aanbiedingen.json* drukken, bestand vervangen in `data/` en committen. Dan zien alle telefoons dezelfde aanbiedingen.
-
-Verlopen aanbiedingen worden automatisch genegeerd.
-
-## Gebruikte openbare diensten (gratis, geen sleutel nodig)
-
-| Wat | Dienst |
-|---|---|
-| Woonplaats/postcode → coördinaten | PDOK Locatieserver (overheid) |
-| Supermarkten in de buurt | OpenStreetMap via Overpass API |
-| Rijafstand en reistijd | OSRM demo-server (valt terug op hemelsbrede afstand, dit wordt dan vermeld) |
-
-## Instellingen aanpassen
-
-Bovenin `index.html` staat `const CONFIG = {...}`: standaardafstand, gewichten per voorkeur, kosten per km, "gedoe" per extra winkel en de productwoordenlijst (synoniemen/uitsluitingen, bv. koffiemelk ≠ koffie).
+## Product toevoegen aan de herkenning
+In `index.html` → `CONFIG.products` (strikte definitie voor vergelijken) en `CONCEPTS` (synoniemen voor de zoeker). Eerst in `beta/` testen, daarna naar de hoofdmap kopiëren.
