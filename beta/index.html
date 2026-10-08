@@ -202,7 +202,7 @@ const CONFIG = {
   defaultMaxStores: 2,
   defaultEurPerKm: 0.23,
   freshHours: 26,                 // ouder dan dit = VEROUDERD
-  minRelevance: 60, sureRelevance: 80, minPrice: 0.15,
+  minRelevance: 60, sureRelevance: 80, minPrice: 0.15, maxPacks: 5,
   checkjebonUrl: 'https://raw.githubusercontent.com/supermarkt/checkjebon/main/data/supermarkets.json',
   // key = app-code; pp = PrijsProfeet-code; cj = Checkjebon-code
   chains: [
@@ -228,7 +228,7 @@ const CONFIG = {
     melk:      { qty: '1 l',   must: /\b(halfvolle|volle|magere)\s+(houdbare\s+)?melk\b|\bmelk\s+(halfvol|vol|mager)\b|^(ah |plus |jumbo )?(halfvolle|volle|magere) melk/, alt: /\b(lactosevrije|houdbare)\b/, ex: /koffie|choco|karne|kokos|haver|soja|amandel|poeder|drink|yoghurt|vla\b|pudding|toetje|kids|aardbei|vanille|banaan|protein|melkbrood/ },
     koffie:    { qty: '500 g', must: /\b(filterkoffie|snelfilter|koffiebonen|gemalen koffie|aroma rood|roodmerk|goudmerk|koffie (rood|aroma|snelfilter|gemalen|bonen|filter|roodmerk|goudmerk|melange))\b/, alt: /\b(koffiepads|koffiecups|pads|capsules|oploskoffie|espressobonen)\b/, ex: /melk|creamer|koek|filters?\b(?! ?koffie)|zetapparaat|ice\b|latte|cappuccino|muesli|smaak|likeur|ontkalk|sticks|room|chocola|siroop|drink/ },
     kaas:      { qty: '500 g', must: /\b(jong(e)?|jong belegen|belegen|extra belegen|oud(e)?|overjarig|gouda|goudse|edammer|maasdammer|leerdammer|beemster|old amsterdam|milner|kaas plakken|kaasplakken)\b.*\b(kaas|plakken|stuk|blok)\b|\b(jonge|belegen|oude|goudse) kaas\b|\bkaas\b.*\b(jong|belegen|oud|plakken|stuk)\b/, alt: /\b(geraspte|raspkaas|strooikaas)\b/, ex: /pinda|smeer|room|snack|stengel|souffl|saus|chips|cracker|burger|kroket|feta|mozzarella|brie|camembert|halvarine|margarine|glorie|zonnepond|fondue|tosti|salade|pizza|broodje|soep|vega\b|plantaardig|cheddar slices/ },
-    kipfilet:  { qty: '500 g', must: /\b(kipfilet|kipfilets|kippenfilet|kipfiletblokjes|kipfiletreepjes|kipfilethaasjes|kipfiletlappen)\b/, alt: /\b(kipdijfilet|kippendijfilet|kipdij)\b/, ex: /gerookt|gebraden|flinterdun|beleg|vleeswaren|americano|ovenschotel|schotel|spinazie|krieltjes|\bmet\b|saus|salade|maaltijd|soep|snack|pizza|gegrild|ping|hond|kat\b|broodje|wrap|spread|smeer|kebab|shoarma|nuggets|cordon|schnitzel|gepaneerd|krokant/ },
+    kipfilet:  { qty: '500 g', must: /\b(kipfilet|kipfilets|kippenfilet|kipfiletblokjes|kipfiletreepjes|kipfilethaasjes|kipfiletlappen)\b/, alt: /\b(kipdijfilet|kippendijfilet|kipdij)\b/, minPack: '200 g', ex: /knorr|maggi|honig|conimex|trattoria|toscana|kvp|gerookt|gebraden|flinterdun|beleg|vleeswaren|americano|ovenschotel|schotel|spinazie|krieltjes|\bmet\b|saus|salade|maaltijd|soep|snack|pizza|gegrild|ping|hond|kat\b|broodje|wrap|spread|smeer|kebab|shoarma|nuggets|cordon|schnitzel|gepaneerd|krokant/ },
     cola:      { qty: '1.5 l', must: /\b(coca-cola|coca cola|cola regular|cola original|cola)\b/, alt: null, ex: /zero|light|max\b|cherry|vanilla|lime|drop|snoep|rum|lolly|ijs\b|whisky|bacardi|flesjes|kauw|siroop|cafeine|energy/ },
     wasmiddel: { qty: null,    must: /\b(wasmiddel|waspoeder|wascapsules|waspods|vloeibaar wasmiddel)\b/, alt: null, ex: /afwas|verzacht|vlek|vaatwas|handzeep|display|proef|wolwas|bal\b|net\b|doekjes/ },
     brood:     { qty: '800 g', must: /\b(volkoren|tarwe|bruin|wit|meergranen|tijger|casino|waldkorn|spelt|vloer|boeren|desem)\s*brood\b|\bbrood\b.*\b(volkoren|tarwe|bruin|wit|heel|half)\b|\b(volkorenbrood|tarwebrood|bruinbrood|witbrood|tijgerbrood|casinobrood|meergranenbrood)\b/, alt: null, ex: /meel|mix|beleg|krenten|suiker|kokos|ontbijtkoek|rogge|kerst|stol|broodje|beschuit|paneer|toast|chips|diepvries|afbak|glutenvrij|knoflook|pudding|trommel|zak\b/ },
@@ -238,7 +238,7 @@ const CONFIG = {
     bananen:   { qty: null,    must: /\b(bananen|banaan|bananentros)\b/, alt: null, ex: /chips|yoghurt|drink|smoothie|snoep|baby|brood|cake|knijp/ },
     suiker:    { qty: '1 kg',  must: /\b(kristalsuiker|basterdsuiker|suiker wit|witte suiker|suiker)\b/, alt: null, ex: /vrij|poeder|brood|wafel|zonder|snoep|klontjes|siroop|spin|vanille/ }
   },
-  globalExclude: /\b(display|proefverpakking|cadeau|geschenk|kerstpakket)\b/
+  globalExclude: /\b(display|proefverpakking|cadeau|geschenk|kerstpakket|maaltijdpakket|maaltijdmix|wereldgerecht)\b/
 };
 
 /* ===================== Hulpfuncties ===================== */
@@ -274,6 +274,12 @@ function parseSize(str) {
   m = s.match(/(\d+)\s*(stuks|stuk|st|eieren)\b/);
   if (m) return { dim: 'st', amount: +m[1] };
   return null;
+}
+function packOk(item, size, n) {
+  if (n > CONFIG.maxPacks) return false;
+  const d = CONFIG.products[norm(item.name)]; const mp = d && d.minPack && parseSize(d.minPack);
+  if (mp && (!size || size.dim !== mp.dim || size.amount < mp.amount)) return false;
+  return true;
 }
 function packsNeeded(item, size) {
   if (item.dim && size && size.dim === item.dim && size.amount > 0) return Math.max(1, Math.ceil(item.amount / size.amount - 1e-6));
@@ -333,7 +339,7 @@ function priceItem(item, offers, regulars, today) {
   for (const o of offers || []) {
     if (!offerValidToday(o, today)) continue;
     const rel = relevance(item.name, `${o.n} ${o.b || ''}`); if (rel < CONFIG.minRelevance) continue;
-    const size = parseSize(o.q); const n = packsNeeded(item, size); if (n == null) continue;
+    const size = parseSize(o.q); const n = packsNeeded(item, size); if (n == null || !packOk(item, size, n)) continue;
     const cost = offerCost(o, n); if (cost == null) continue;
     const t = offerTerms(o);
     let hint = '';
@@ -350,6 +356,7 @@ function priceItem(item, offers, regulars, today) {
     const rel = relevance(item.name, r.n); if (rel < CONFIG.minRelevance) continue;
     const size = parseSize(r.s); const n = packsNeeded(item, size); if (n == null || r.p == null || r.p < CONFIG.minPrice) continue;
     if (item.dim && !size) continue;
+    if (!packOk(item, size, n)) continue;
     cands.push({ kind: 'regulier', rel, cost: n * r.p, n, product: r.n, size: r.s, label: eur(r.p), normal: null, url: r.url || null, hint: '', cond: [] });
   }
   if (!cands.length) return null;
@@ -416,6 +423,7 @@ const app = initializeApp({
   appId: '1:665757214843:web:54db2827a278ed71801ade'
 });
 const auth = getAuth(app); const db = getFirestore(app);
+window.__SB = { get DATA() { return DATA; } };   // alleen voor testen in de browserconsole
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const km1 = v => v == null ? '–' : v.toFixed(1).replace('.', ',');
@@ -633,7 +641,7 @@ function adviceCard(i, icon, title, opt, kind) {
 function reason(kind, o) {
   const A = LAST.adv, n = x => x.idx.map(i => LAST.chains[i].name).join(' + ');
   if (kind === 'cheap') { const nxt = A.singles.filter(s => s.complete && s !== o).sort((a, b) => a.goods - b.goods)[0]; return `Laagste prijs voor je hele lijst bij één supermarkt.` + (nxt ? ` ${nxt === undefined ? '' : `${n(nxt)} is ${eur(nxt.goods - o.goods)} duurder.`}` : ''); }
-  if (kind === 'smart') { const c = A.cheapest; if (o.idx.length === 1) return `Meerdere winkels levert niet genoeg op om de extra kilometers goed te maken.`; return c ? `Ten opzichte van alleen ${n(c)} bespaar je ${eur((c.goods + c.travel) - o.total)}, inclusief ${km1(o.km - c.km)} km extra rijden.` : `Alleen met deze combinatie is je hele lijst geprijsd.`; }
+  if (kind === 'smart') { const c = A.cheapest; if (o.idx.length === 1) return `Meerdere winkels levert niet genoeg op om de extra kilometers goed te maken.`; return c ? `Ten opzichte van alleen ${n(c)} bespaar je ${eur((c.goods + c.travel) - o.total)}` + (o.km - c.km > 0.05 ? `, inclusief ${km1(o.km - c.km)} km extra rijden.` : `, zonder extra kilometers.`) : `Alleen met deze combinatie is je hele lijst geprijsd.`; }
   if (kind === 'easy') return `Kortste reistijd naar een supermarkt die je hele lijst heeft.`;
   return '';
 }
