@@ -3,10 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f5c4d">
+<meta name="theme-color" content="#ffffff">
 <title>Slimme Boodschappen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap">
+<link rel="manifest" href="/slimme-boodschappen/manifest.json">
+<link rel="icon" type="image/png" href="/slimme-boodschappen/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/slimme-boodschappen/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Boodschappen">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
 :root{
   --bg:#eef3f1; --paper:#ffffff; --ink:#17241f; --muted:#5a6b64; --line:#d5e0db;
@@ -122,18 +129,57 @@ table.adm td,table.adm th{padding:6px 4px;border-bottom:1px solid var(--line);te
 .sug.free{color:var(--muted)}
 .sug-head{padding:8px 14px;font-size:14px;color:var(--muted);font-weight:700}
 .dym{display:block;width:100%;text-align:left;border:0;background:var(--warn-bg);color:var(--warn);font:inherit;font-size:17px;padding:12px 14px;min-height:48px;cursor:pointer}
+/* ===== Huisstijl (ontwerp 2026) ===== */
+:root{--bg:#f4f8f5;--paper:#fff;--ink:#16241b;--muted:#5d6b63;--line:#e2e9e4;--brand:#1f9a3c;--brand-dark:#0b5a2a;--brand-ink:#fff;--soft:#e7f5ea;--blue:#1f6fd1;--grey:#eef1f3;--shadow:0 3px 10px rgba(16,40,24,.10)}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1712;--paper:#18231c;--ink:#e8f0ea;--muted:#9fb1a5;--line:#2a3a30;--brand:#3cbf5a;--brand-dark:#8fe0a2;--soft:#1d3324;--grey:#222e27;--shadow:0 3px 10px rgba(0,0,0,.4)}}
+body{font-family:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+header.top{background:var(--paper);color:var(--ink);padding:14px 0 6px;box-shadow:var(--shadow)}
+.brandbar{display:flex;align-items:center;gap:12px}
+.brandbar .logo{width:56px;height:56px;border-radius:14px;box-shadow:var(--shadow);flex:0 0 auto}
+header.top h1{font-size:25px;font-weight:900;line-height:1.05;letter-spacing:-.01em}
+header.top h1 .t1{color:var(--brand-dark)} header.top h1 .t2{color:var(--brand)}
+.tagline{margin:2px 0 0!important;font-size:14px!important;color:var(--muted);opacity:1!important}
+.datastatus{margin:8px 0 4px!important;font-size:14px!important;color:var(--muted);opacity:1!important}
+section.block{border:0;border-radius:20px;box-shadow:var(--shadow)}
+h2{font-weight:900}
+.btn{background:var(--brand);border-radius:18px;font-weight:900;box-shadow:var(--shadow)}
+.btn2{border-color:var(--brand);color:var(--brand);font-weight:800;border-radius:14px}
+.link{color:var(--brand)}
+input[type=text],input[type=number],textarea,select,.pw{width:100%;font:inherit;padding:12px 14px;border:2px solid var(--line);border-radius:14px;background:var(--paper);color:var(--ink)}
+.bigbtn{display:flex;align-items:center;gap:16px;width:100%;min-height:76px;margin:14px 0;padding:14px 20px;border:0;border-radius:24px;font:inherit;font-size:22px;font-weight:900;text-align:left;cursor:pointer;box-shadow:var(--shadow)}
+.bigbtn span:not(.chev):not(.ico){flex:1}
+.bigbtn .ico{width:34px;height:34px;flex:0 0 34px}
+.bigbtn .emo{font-size:30px;line-height:34px;text-align:center}
+.bigbtn .chev{font-size:34px;line-height:1;opacity:.8}
+.bigbtn.green{background:linear-gradient(180deg,#34b04a,#23963a);color:#fff}
+.bigbtn.blue{background:linear-gradient(180deg,#2b80e6,#1b67c7);color:#fff}
+.bigbtn.white{background:var(--paper);color:var(--ink);border:1px solid var(--line)}
+.bigbtn.grey{background:var(--grey);color:var(--ink)}
+.bigbtn:active{transform:scale(.99)}
+.homeinfo{color:var(--muted);font-size:15px;text-align:center;margin:6px 0 0}
+.where{margin:4px 2px 10px}
+.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;justify-content:space-around;gap:4px;background:var(--paper);box-shadow:0 -3px 12px rgba(16,40,24,.10);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+.bottomnav button{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;font-size:11.5px;font-weight:700;padding:6px 2px;border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.bottomnav button span{font-size:23px;line-height:1.1}
+.bottomnav button[aria-current="page"]{background:var(--soft);color:var(--brand)}
+.deal{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.deal .dtxt{flex:1;min-width:0}
+.deal .dname{font-weight:800}
+.deal .dsub{font-size:14px;color:var(--muted)}
+.deal .dprice{text-align:right;white-space:nowrap;font-weight:900}
+.deal .dadd{flex:0 0 44px;height:44px;border-radius:12px;border:2px solid var(--brand);background:transparent;color:var(--brand);font-size:22px;font-weight:900;cursor:pointer}
+.deal .dadd.done{background:var(--brand);color:#fff}
+.store{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
 </style>
 </head>
 <body>
 <header class="top">
-  <div class="wrap">
-    <h1>🛒 Slimme Boodschappen</h1>
-    <p id="dataStatus">Aanbiedingen worden automatisch bijgewerkt</p>
-    <nav class="tabs hidden" id="tabs" role="tablist">
-      <button id="tabList" role="tab" aria-selected="true">Boodschappen</button>
-      <button id="tabAdmin" role="tab" aria-selected="false" class="hidden">Beheer</button>
-    </nav>
+  <div class="wrap brandbar">
+    <img src="/slimme-boodschappen/icons/icon-192.png" class="logo" alt="" width="56" height="56">
+    <div class="brandtxt"><h1><span class="t1">Slimme</span> <span class="t2">Boodschappen</span></h1>
+    <p class="tagline">Meer besparen, slimmer boodschappen doen</p></div>
   </div>
+  <div class="wrap"><p id="dataStatus" class="datastatus">Aanbiedingen worden automatisch bijgewerkt</p></div>
 </header>
 
 <main class="wrap">
@@ -143,7 +189,7 @@ table.adm td,table.adm th{padding:6px 4px;border-bottom:1px solid var(--line);te
   <label class="f" for="email">E-mailadres</label>
   <input type="text" id="email" autocomplete="username" inputmode="email">
   <label class="f" for="pw">Wachtwoord</label>
-  <input type="password" id="pw" autocomplete="current-password" style="width:100%;font:inherit;padding:12px 14px;border:2px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink)">
+  <input type="password" id="pw" autocomplete="current-password" class="pw">
   <button class="btn" id="loginBtn" style="margin-top:12px">Inloggen</button>
   <div id="loginMsg" class="status hidden"></div>
   <button class="link" id="toggleSignup">Nog geen account? Account aanmaken</button><br>
@@ -156,6 +202,15 @@ table.adm td,table.adm th{padding:6px 4px;border-bottom:1px solid var(--line);te
   <button class="btn2" id="waitRetry">Opnieuw controleren</button>
   <button class="link" id="waitLogout">Uitloggen</button>
 </section>
+
+<!-- ===== HOME ===== -->
+<div id="viewHome" class="hidden">
+  <button class="bigbtn green" data-go="viewDeals"><svg viewBox="0 0 24 24" class="ico" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.6-4.6"/></svg><span>Zoek aanbiedingen</span><span class="chev">›</span></button>
+  <button class="bigbtn blue" data-go="viewList"><svg viewBox="0 0 24 24" class="ico" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h2.2l2.4 10.3a1 1 0 0 0 1 .7h9a1 1 0 0 0 1-.8L20.5 7.5H6"/><circle cx="9" cy="19.3" r="1.5"/><circle cx="17" cy="19.3" r="1.5"/></svg><span>Boodschappenlijst</span><span class="chev">›</span></button>
+  <button class="bigbtn white" data-go="viewLoc"><svg viewBox="0 0 24 24" class="ico"><path d="M12 22.5s7.5-7.4 7.5-12.6a7.5 7.5 0 1 0-15 0c0 5.2 7.5 12.6 7.5 12.6z" fill="#1f6fd1"/><circle cx="12" cy="9.8" r="2.8" fill="#fff"/></svg><span>Kies locatie</span><span class="chev">›</span></button>
+  <button class="bigbtn grey" data-go="viewStores"><span class="ico emo">🏪</span><span>Supermarkten</span><span class="chev">›</span></button>
+  <p class="homeinfo" id="homeInfo"></p>
+</div>
 
 <!-- ===== BOODSCHAPPEN ===== -->
 <div id="viewList" class="hidden">
@@ -170,25 +225,61 @@ table.adm td,table.adm th{padding:6px 4px;border-bottom:1px solid var(--line);te
     <p class="muted" id="emptyList">Nog niets op de lijst. Je kunt ook meerdere regels tegelijk plakken.</p>
     <button class="link" id="sampleBtn">Voorbeeldlijst laden</button>
   </section>
+  <p class="muted where" id="whereLine"></p>
+  <button class="btn" id="searchBtn">Vergelijk supermarkten</button>
+  <div id="status" class="status hidden" role="status"></div>
+  <div id="result"></div>
+</div>
 
+<!-- ===== AANBIEDINGEN ===== -->
+<div id="viewDeals" class="hidden">
   <section class="block">
-    <h2>Waar en hoe</h2>
+    <h2>🏷️ Aanbiedingen</h2>
+    <input type="text" id="dealInput" placeholder="Zoek in aanbiedingen, bv. koffie" autocomplete="off" enterkeyhint="search">
+    <p class="muted" id="dealInfo"></p>
+    <div id="dealList"></div>
+  </section>
+</div>
+
+<!-- ===== LOCATIE ===== -->
+<div id="viewLoc" class="hidden">
+  <section class="block">
+    <h2>📍 Kies locatie</h2>
     <div class="row">
       <div><label class="f" for="place">Woonplaats</label><input type="text" id="place" placeholder="bv. Tubbergen"></div>
       <div><label class="f" for="postcode">Postcode</label><input type="text" id="postcode" placeholder="optioneel"></div>
     </div>
     <label class="f" for="maxKm">Maximale rijafstand: <span id="maxKmLabel"></span> km</label>
     <input type="range" id="maxKm" min="2" max="30" step="1" style="width:100%">
-    <label class="f">Maximaal aantal winkels</label>
+    <button class="btn" data-go="viewList" style="margin-top:16px">Klaar – naar boodschappenlijst</button>
+  </section>
+</div>
+
+<!-- ===== SUPERMARKTEN ===== -->
+<div id="viewStores" class="hidden">
+  <section class="block">
+    <h2>🏪 Supermarkten</h2>
+    <p class="muted">Vink uit waar je nooit heen gaat.</p>
+    <div class="chains" id="chainBoxes"></div>
+  </section>
+  <section class="block">
+    <h2>In de buurt</h2>
+    <div id="storeList"><button class="btn2" id="storeBtn">Toon supermarkten bij mij in de buurt</button></div>
+  </section>
+</div>
+
+<!-- ===== INSTELLINGEN ===== -->
+<div id="viewSettings" class="hidden">
+  <section class="block">
+    <h2>⚙️ Instellingen</h2>
+    <label class="f">Maximaal aantal winkels per keer</label>
     <div class="seg" id="maxStoresSeg"><button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button></div>
     <label class="f" for="eurKm">Autokosten per km (€)</label>
     <input type="number" id="eurKm" step="0.01" min="0" inputmode="decimal">
-    <details class="more"><summary>Winkels kiezen</summary><div class="chains" id="chainBoxes"></div></details>
+    <p class="muted">Tip: zet de app op je beginscherm via “Deel” → “Zet op beginscherm”.</p>
   </section>
-
-  <button class="btn" id="searchBtn">Vergelijk supermarkten</button>
-  <div id="status" class="status hidden" role="status"></div>
-  <div id="result"></div>
+  <button class="bigbtn grey hidden" id="adminBtn" data-go="viewAdmin"><span class="ico emo">🛠️</span><span>Beheer</span><span class="chev">›</span></button>
+  <button class="link" id="logoutBtn">Uitloggen</button>
 </div>
 
 <!-- ===== BEHEER ===== -->
@@ -200,11 +291,18 @@ table.adm td,table.adm th{padding:6px 4px;border-bottom:1px solid var(--line);te
   <section class="block"><h2>Fouten</h2><div id="admErrors" class="muted"></div></section>
   <section class="block"><h2>Toegang</h2><div id="admAccess"></div>
     <div class="add" style="margin-top:10px"><input type="text" id="accEmail" placeholder="e-mailadres"><button class="btn2" id="accAdd">Toevoegen</button></div></section>
-  <button class="link" id="logoutBtn">Uitloggen</button>
 </div>
 
 <footer class="src">Aanbiedingen via <a href="https://www.prijsprofeet.nl" target="_blank" rel="noopener">PrijsProfeet</a> · Reguliere prijzen via <a href="https://www.checkjebon.nl" target="_blank" rel="noopener">Checkjebon.nl</a> · Winkels © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a><br>Prijzen zijn indicatief; de prijs in de winkel is leidend.</footer>
 </main>
+<nav class="bottomnav hidden" id="bottomnav">
+  <button data-go="viewHome"><span>🏠</span>Home</button>
+  <button data-go="viewList"><span>📝</span>Boodschappen</button>
+  <button data-go="viewDeals"><span>🏷️</span>Aanbiedingen</button>
+  <button data-go="viewLoc"><span>📍</span>Locatie</button>
+  <button data-go="viewStores"><span>🏪</span>Winkels</button>
+  <button data-go="viewSettings"><span>⚙️</span>Instellingen</button>
+</nav>
 <script>
 
 /* ===================== CONFIG ===================== */
@@ -569,7 +667,8 @@ window.__SB = { get DATA() { return DATA; } };   // alleen voor testen in de bro
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const km1 = v => v == null ? '–' : v.toFixed(1).replace('.', ',');
-const show = (...ids) => ['viewLogin', 'viewWait', 'viewList', 'viewAdmin'].forEach(v => $(v).classList.toggle('hidden', !ids.includes(v)));
+const VIEWS = ['viewLogin', 'viewWait', 'viewHome', 'viewList', 'viewDeals', 'viewLoc', 'viewStores', 'viewSettings', 'viewAdmin'];
+const show = (...ids) => VIEWS.forEach(v => $(v).classList.toggle('hidden', !ids.includes(v)));
 const fmtDate = iso => iso ? new Date(iso).toLocaleString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '–';
 
 /* ---------- Instellingen (lokaal op het toestel) ---------- */
@@ -597,7 +696,7 @@ $('waitRetry').onclick = async () => { await auth.currentUser?.reload(); start(a
 
 onAuthStateChanged(auth, u => start(u));
 async function start(u) {
-  $('tabs').classList.add('hidden');
+  $('bottomnav').classList.add('hidden');
   if (!u) return show('viewLogin');
   if (!u.emailVerified) {
     $('waitTitle').textContent = 'Bevestig je e-mailadres';
@@ -612,11 +711,63 @@ async function start(u) {
     return show('viewWait');
   }
   ROLE = acc.role || 'user';
-  $('tabs').classList.remove('hidden'); $('tabAdmin').classList.toggle('hidden', ROLE !== 'admin');
-  show('viewList'); initList(); loadData();
+  $('bottomnav').classList.remove('hidden'); $('adminBtn').classList.toggle('hidden', ROLE !== 'admin');
+  initList(); loadData(); go('viewHome');
 }
-$('tabList').onclick = () => { $('tabList').setAttribute('aria-selected', 'true'); $('tabAdmin').setAttribute('aria-selected', 'false'); show('viewList'); };
-$('tabAdmin').onclick = () => { $('tabList').setAttribute('aria-selected', 'false'); $('tabAdmin').setAttribute('aria-selected', 'true'); show('viewAdmin'); renderAdmin(); };
+/* ---------- Navigatie (startscherm + balk onderin) ---------- */
+function go(view) {
+  if (view === 'viewAdmin' && ROLE !== 'admin') view = 'viewSettings';
+  show(view); window.scrollTo(0, 0);
+  const navKey = view === 'viewAdmin' ? 'viewSettings' : view;
+  document.querySelectorAll('#bottomnav button').forEach(b => b.dataset.go === navKey ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
+  if (view === 'viewHome') renderHome();
+  if (view === 'viewList') renderWhere();
+  if (view === 'viewDeals') renderDeals();
+  if (view === 'viewAdmin') renderAdmin();
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) { e.preventDefault(); go(b.dataset.go); } });
+function placeText() { return [state.postcode, state.place].filter(Boolean).join(' ') || ''; }
+function renderHome() {
+  const n = state.items.length, pl = placeText();
+  $('homeInfo').textContent = (n ? `${n} ${n === 1 ? 'product' : 'producten'} op je lijst` : 'Je lijst is nog leeg') + (pl ? ` · ${pl}, max ${state.maxKm} km` : ' · kies eerst je locatie');
+}
+function renderWhere() { const pl = placeText(); $('whereLine').innerHTML = pl ? `📍 ${esc(pl)} · max ${state.maxKm} km · <a href="#" data-go="viewLoc">wijzigen</a>` : `📍 <a href="#" data-go="viewLoc">Kies eerst je locatie</a>`; }
+let addToListFn = null;
+/* Aanbiedingen-scherm: alle actuele acties bij de gekozen ketens, grootste korting eerst */
+let dealTimer = null;
+function renderDeals() {
+  const q = norm($('dealInput').value).trim(), today = todayISO(), dis = new Set(DATA.config.disabled || []);
+  if (!DATA.loaded) { $('dealInfo').textContent = 'Aanbiedingen laden…'; return; }
+  let toks = q ? q.split(' ') : [];
+  if (toks.length && IDX) toks = toks.map(t => correctWord(IDX, t).w);
+  const rows = [];
+  for (const c of CONFIG.chains) {
+    if (!c.pp || state.chainsOn[c.key] === false || dis.has(c.key) || dis.has('prijsprofeet')) continue;
+    for (const o of DATA.offers[c.key] || []) {
+      if (!offerValidToday(o, today)) continue;
+      const txt = norm(`${o.n} ${o.b || ''}`);
+      if (toks.length && !toks.every(t => txt.includes(t))) continue;
+      const pct = o.op && o.p && o.op > o.p ? (o.op - o.p) / o.op : 0;
+      rows.push({ o, c, pct });
+    }
+  }
+  rows.sort((a, b) => b.pct - a.pct);
+  $('dealInfo').textContent = `${rows.length.toLocaleString('nl-NL')} aanbiedingen${q ? ` voor "${$('dealInput').value.trim()}"` : ''} · landelijke acties, geldig vandaag`;
+  $('dealList').innerHTML = rows.slice(0, 60).map(({ o, c, pct }, i) => `<div class="deal"><div class="dtxt"><div class="dname">${esc(o.n)}</div><div class="dsub">${esc(c.name)}${o.q ? ' · ' + esc(o.q) : ''} · ${esc(offerLabel(o))}${o.vu ? ' · t/m ' + new Date(o.vu).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' }) : ''}</div></div><div class="dprice">${o.op ? `<span class="was">${eur(o.op)}</span><br>` : ''}${eur(o.p)}${pct >= 0.2 ? `<br><span class="pill p-ok">-${Math.round(pct * 100)}%</span>` : ''}</div><button class="dadd" data-deal="${i}" aria-label="Op lijst">+</button></div>`).join('') || '<p class="muted">Geen aanbiedingen gevonden.</p>';
+  $('dealList').querySelectorAll('[data-deal]').forEach(b => b.onclick = () => { const { o } = rows[+b.dataset.deal]; if (addToListFn) addToListFn(itemFromProduct({ name: o.n, size: o.q || '' }), true); b.textContent = '✓'; b.classList.add('done'); });
+}
+/* Supermarkten in de buurt (uit het winkelbestand) */
+async function renderStores() {
+  const box = $('storeList');
+  if (!state.place && !state.postcode) { box.innerHTML = '<p class="muted">Kies eerst je locatie.</p><button class="btn2" data-go="viewLoc">Kies locatie</button>'; return; }
+  box.innerHTML = '<p class="muted">Zoeken…</p>';
+  try {
+    const home = await geocode(state.place, state.postcode); const stores = (await findStores(home, state.maxKm)).filter(s => s.chainKey).sort((a, b) => a.airKm - b.airKm);
+    const dis = new Set(DATA.config.disabled || []);
+    box.innerHTML = `<p class="muted">${stores.length} supermarkten binnen ${state.maxKm} km (hemelsbreed) van ${esc(home.label)}</p>` + stores.slice(0, 40).map(s => { const c = chainByKey(s.chainKey); const has = (c.pp && !dis.has(c.key) && (DATA.offers[c.key] || []).length) || (c.cj && DATA.regulars && (DATA.regulars[c.cj] || []).length);
+      return `<div class="store"><div><b>${esc(c.name)}</b>${state.chainsOn[c.key] === false ? ' <span class="pill p-bad">uitgezet</span>' : ''}<div class="dsub muted">${esc(s.addr || s.name)}</div></div><div style="text-align:right;white-space:nowrap">${km1(s.airKm)} km<br>${has ? '<span class="pill p-ok">prijzen</span>' : '<span class="pill p-bad">geen prijzen</span>'}</div></div>`; }).join('');
+  } catch (e) { box.innerHTML = `<p class="status err">${esc(e.message || e)}</p><button class="btn2" id="storeBtn">Opnieuw</button>`; $('storeBtn').onclick = renderStores; }
+}
 
 /* ---------- Gegevens laden ---------- */
 const DATA = { offers: {}, status: null, config: { disabled: [] }, regulars: null, regStatus: 'laden', loaded: false };
@@ -690,7 +841,10 @@ function initList() {
     $('itemList').querySelectorAll('button').forEach(b => b.onclick = () => { state.items.splice(+b.dataset.i, 1); save(); renderItems(); });
   };
   const addItems = t => { t.split(/\n|,/).map(s => s.trim()).filter(Boolean).forEach(s => { state.items.push(s); remember(s); }); save(); renderItems(); };
-  const addOne = t => { t = (t || '').trim(); if (!t) return; state.items.push(t); remember(t); save(); renderItems(); $('itemInput').value = ''; $('suggest').classList.add('hidden'); $('itemInput').focus(); };
+  const addOne = (t, quiet) => { t = (t || '').trim(); if (!t) return; state.items.push(t); remember(t); save(); renderItems(); if (quiet) return; $('itemInput').value = ''; $('suggest').classList.add('hidden'); $('itemInput').focus(); };
+  addToListFn = addOne;
+  $('dealInput').addEventListener('input', () => { clearTimeout(dealTimer); dealTimer = setTimeout(renderDeals, 200); });
+  $('storeBtn').onclick = renderStores;
   $('addBtn').onclick = () => { const v = $('itemInput').value; if (LASTSUG && LASTSUG.conceptSure && compact(LASTSUG.query) === compact(v)) addOne(LASTSUG.concept.name); else { addItems(v); $('itemInput').value = ''; $('suggest').classList.add('hidden'); $('itemInput').focus(); } };
   $('itemInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('addBtn').click(); } else if (e.key === 'Escape') $('suggest').classList.add('hidden'); });
   $('itemInput').addEventListener('input', () => { clearTimeout(sugTimer); sugTimer = setTimeout(renderSuggest, 120); });
@@ -711,7 +865,7 @@ function initList() {
   $('maxKm').oninput = e => { state.maxKm = +e.target.value; $('maxKmLabel').textContent = state.maxKm; save(); };
   $('chainBoxes').innerHTML = CONFIG.chains.map(c => `<label><input type="checkbox" data-k="${c.key}" ${state.chainsOn[c.key] === false ? '' : 'checked'}> ${c.name}</label>`).join('');
   $('chainBoxes').querySelectorAll('input').forEach(i => i.onchange = () => { state.chainsOn[i.dataset.k] = i.checked; save(); });
-  $('searchBtn').onclick = search;
+  $('searchBtn').onclick = () => { if (!state.place && !state.postcode) { go('viewLoc'); return; } search(); };
 }
 function setStatus(m, err) { const s = $('status'); s.textContent = m; s.classList.toggle('hidden', !m); s.classList.toggle('err', !!err); }
 
