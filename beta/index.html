@@ -390,8 +390,8 @@ const CONFIG = {
     cola:      { qty: '1.5 l', must: /\b(coca-cola|coca cola|cola regular|cola original|cola)\b/, alt: null, ex: /zero|light|max\b|cherry|vanilla|lime|drop|snoep|rum|lolly|ijs\b|whisky|bacardi|flesjes|kauw|siroop|cafeine|energy/ },
     wasmiddel: { qty: null,    must: /\b(wasmiddel|waspoeder|wascapsules|waspods|vloeibaar wasmiddel)\b/, alt: null, ex: /afwas|verzacht|vlek|vaatwas|handzeep|display|proef|wolwas|bal\b|net\b|doekjes/ },
     brood:     { qty: '800 g', must: /\b(volkoren|tarwe|bruin|wit|meergranen|tijger|casino|waldkorn|spelt|vloer|boeren|desem)\s*brood\b|\bbrood\b.*\b(volkoren|tarwe|bruin|wit|heel|half)\b|\b(volkorenbrood|tarwebrood|bruinbrood|witbrood|tijgerbrood|casinobrood|meergranenbrood)\b/, alt: null, ex: /meel|mix|beleg|krenten|suiker|kokos|ontbijtkoek|rogge|kerst|stol|broodje|beschuit|paneer|toast|chips|diepvries|afbak|glutenvrij|knoflook|pudding|trommel|zak\b/ },
-    roomboter: { qty: '250 g', must: /\b(roomboter|boter ongezouten|boter gezouten|grasboter)\b/, alt: /\b(margarine|halvarine|blue band|becel)\b/, minPack: '200 g', ex: /pinda|koek|stroop|kruiden|babbelaar|cake|croissant|bladerdeeg|sprits|bak en braad|vloeibaar|ham|saus|kano|taart|gebak|amandel|speculaas|wafel|bol\b|bolletje|broodje|creme|bonbon|kruimel|deeg|pasteit|saucijs|cookie|biscuit|tompoes|soes|kaneel|rozijn|krakeling|brioche|cracker|jodenkoek|bitterkoek|appel|chocola|karamel|fudge|ijs\b|toffee|reep|carre|puntjes/ },
-    boter:     { qty: '250 g', must: /\b(roomboter|boter ongezouten|boter gezouten|grasboter)\b/, alt: /\b(margarine|halvarine|blue band|becel)\b/, minPack: '200 g', ex: /pinda|koek|stroop|kruiden|babbelaar|cake|croissant|bladerdeeg|sprits|bak en braad|vloeibaar|ham|saus|kano|taart|gebak|amandel|speculaas|wafel|bol\b|bolletje|broodje|creme|bonbon|kruimel|deeg|pasteit|saucijs|cookie|biscuit|tompoes|soes|kaneel|rozijn|krakeling|brioche|cracker|jodenkoek|bitterkoek|appel|chocola|karamel|fudge|ijs\b|toffee|reep|carre|puntjes/ },
+    roomboter: { qty: '250 g', must: /(^|\s)(roomboter|grasboter|boter)(\s+(ongezouten|gezouten|licht gezouten|met zeezout|zeezout|biologisch|bio|blok|pakje|\d+([.,]\d+)?\s*(g|gram|kg)))*\s*$|\bsmeerbare boter\b|\b(room)?boter (on)?gezouten\b/, alt: /\b(margarine|halvarine|blue band|becel)\b/, minPack: '200 g', ex: /pinda|koek|stroop|kruiden|babbelaar|cake|croissant|bladerdeeg|sprits|bak en braad|vloeibaar|ham|saus|kano|taart|gebak|amandel|speculaas|wafel|bol\b|bolletje|broodje|creme|bonbon|kruimel|deeg|pasteit|saucijs|cookie|biscuit|tompoes|soes|kaneel|rozijn|krakeling|brioche|cracker|jodenkoek|bitterkoek|appel|chocola|karamel|fudge|ijs\b|toffee|reep|carre|puntjes/ },
+    boter:     { qty: '250 g', must: /(^|\s)(roomboter|grasboter|boter)(\s+(ongezouten|gezouten|licht gezouten|met zeezout|zeezout|biologisch|bio|blok|pakje|\d+([.,]\d+)?\s*(g|gram|kg)))*\s*$|\bsmeerbare boter\b|\b(room)?boter (on)?gezouten\b/, alt: /\b(margarine|halvarine|blue band|becel)\b/, minPack: '200 g', ex: /pinda|koek|stroop|kruiden|babbelaar|cake|croissant|bladerdeeg|sprits|bak en braad|vloeibaar|ham|saus|kano|taart|gebak|amandel|speculaas|wafel|bol\b|bolletje|broodje|creme|bonbon|kruimel|deeg|pasteit|saucijs|cookie|biscuit|tompoes|soes|kaneel|rozijn|krakeling|brioche|cracker|jodenkoek|bitterkoek|appel|chocola|karamel|fudge|ijs\b|toffee|reep|carre|puntjes/ },
     eieren:    { qty: '10 st', must: /\b(eieren|scharreleieren|vrije uitloop eieren|biologische eieren)\b/, alt: null, ex: /paas|chocola|snoep|salade|noodle|pasta|kinder|kwartel|gekookte|omelet/ },
     druiven:   { qty: '500 g', must: /\bdruiven\b/, alt: null, ex: /confituur|drink|sap|mr cool|jam|rozijn|snoep|gedroogd|wijn/ },
     bananen:   { qty: null,    must: /\b(bananen|banaan|bananentros)\b/, alt: null, ex: /chips|yoghurt|drink|smoothie|snoep|baby|brood|cake|knijp/ },
@@ -691,9 +691,9 @@ function matchConcept(q) {
 }
 /* Zoeken: 1) begrip herkennen  2) woorden corrigeren (ook los/aaneen)  3) producten filteren.
    Een correctie wordt nooit stilzwijgend toegepast: dan volgt "Bedoel je ...?" */
-function filterProducts(idx, toks) {
+function filterProducts(idx, toks, pred) {
   const out = [];
-  for (const g of idx.list) if (toks.every(t => g.nn.includes(t) || g.cn.includes(t))) out.push(g);
+  for (const g of idx.list) if (toks.every(t => g.nn.includes(t) || g.cn.includes(t)) && (!pred || pred(g))) out.push(g);
   const first = toks[0];
   out.sort((a, b) => ((b.nn.replace(HOUSE, '').startsWith(first)) - (a.nn.replace(HOUSE, '').startsWith(first))) || (b.nc - a.nc) || (a.nn.length - b.nn.length));
   const seen = new Set();
@@ -714,7 +714,11 @@ function searchProducts(idx, q, history) {
     else if (cm && cm.prefix.length) res.concept = cm.prefix[0];       // suggestie tijdens typen, niet "zeker"
   }
   if (idx) {
-    let f = filterProducts(idx, toks);
+    // bekend begrip (bv. boter): alleen echte producten tonen, geen croissant/cake/wafel
+    const def = res.concept && CONFIG.products[norm(res.concept.name)];
+    const strict = def ? g => relevance(res.concept.name, g.name) >= CONFIG.sureRelevance : null;
+    let f = filterProducts(idx, toks, strict);
+    if (strict && !f.total) f = filterProducts(idx, toks);
     if (corrected && !f.total) { corrected = false; toks = nq.split(' '); f = filterProducts(idx, toks); if (res.concept && !res.conceptSure && cm && cm.fuzzy === res.concept) res.concept = null; }
     res.products = f.list; res.total = f.total;
     if (corrected && f.total) res.didYouMean = res.concept && !res.conceptSure && cm && cm.fuzzy === res.concept ? res.concept.name : toks.join(' ');
