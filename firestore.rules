@@ -13,6 +13,8 @@ service cloud.firestore {
     match /meta/config      { allow read: if allowed(); allow write: if isAdmin(); }
     // Toegangslijst: beheerder beheert; gebruiker mag alleen zijn eigen regel zien
     match /access/{email}   { allow read: if isAdmin() || (signedIn() && email == mail()); allow write: if isAdmin(); }
+    // Eigen spaarpot: ieder ziet en schrijft alleen zijn eigen boodschappenrondes
+    match /users/{uid}/trips/{tid} { allow read, write: if allowed() && request.auth.uid == uid; }
     match /{document=**}    { allow read, write: if false; }
   }
 }

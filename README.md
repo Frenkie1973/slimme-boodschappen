@@ -10,6 +10,8 @@ Webapp die voor een boodschappenlijstje berekent waar je het voordeligst boodsch
 - Productzoeker met suggesties, foutcorrectie ("huzaren salede" → huzarensalade) en "Bedoel je…?".
 - Vergelijkt per supermarkt in de buurt: aanbiedingen + normale prijzen, rijafstand en autokosten.
 - Advies: **Beste keuze (incl. reiskosten)**, Dichtstbij met alles, Laagste boodschappenprijs.
+- Aantal per product apart instellen (− 2 pakken +); vergelijking rekent met aantal × verpakking.
+- Beloningssysteem: na "Ik heb deze boodschappen gedaan" wordt de besparing (aanbiedingskorting, optioneel met kassabedrag) opgeslagen in een eigen spaarpot per account, met 7 niveaus, confetti en overzicht per maand.
 - Statussen: ACTUEEL / VEROUDERD / NIET BESCHIKBAAR. Geen verzonnen prijzen, geen demo-data.
 
 ## Bronnen
@@ -27,11 +29,14 @@ GitHub Pages ── index.html (app)            ← live
 GitHub Actions ─ sync.yml    (06:15 + 18:15) → PrijsProfeet → Firestore (alleen leesbaar voor goedgekeurde gebruikers)
                └ winkels.yml (maandagnacht)  → OpenStreetMap → data/winkels.json
 Firebase (Spark, gratis) ─ Authentication + Firestore (regels: firestore.rules)
+                         └ users/{uid}/trips  ← eigen spaarpot, alleen leesbaar/schrijfbaar door de eigenaar
 ```
 
 ## Mappenstructuur
 ```
 index.html                 app (één bestand)
+manifest.json              app-icoon en naam voor 'Zet op beginscherm'
+icons/                     app-iconen (192, 512, iPhone)
 beta/index.html            testversie
 data/winkels.json          supermarktlocaties (automatisch)
 sync/sync.mjs              aanbiedingen ophalen → Firestore
