@@ -170,6 +170,43 @@ input[type=text],input[type=number],textarea,select,.pw{width:100%;font:inherit;
 .deal .dadd{flex:0 0 44px;height:44px;border-radius:12px;border:2px solid var(--brand);background:transparent;color:var(--brand);font-size:22px;font-weight:900;cursor:pointer}
 .deal .dadd.done{background:var(--brand);color:#fff}
 .store{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+/* ===== Beloningssysteem ===== */
+.savecard{display:block;width:100%;text-align:left;border:0;font:inherit;cursor:pointer;margin:14px 0;padding:16px 18px;border-radius:24px;color:#fff;background:linear-gradient(135deg,#f7b733,#f08a24);box-shadow:var(--shadow)}
+.savecard .lbl{font-size:15px;font-weight:800;opacity:.95}
+.savecard .amt{font-size:34px;font-weight:900;line-height:1.1}
+.savecard .ttl{font-size:16px;font-weight:800}
+.prog{height:10px;border-radius:99px;background:rgba(255,255,255,.35);margin:10px 0 4px;overflow:hidden}
+.prog>i{display:block;height:100%;background:#fff;border-radius:99px}
+.savecard .nxt{font-size:13px;font-weight:700;opacity:.95}
+.donebtn{margin-top:12px}
+.overlay{position:fixed;inset:0;z-index:100;background:rgba(10,25,15,.55);display:flex;align-items:flex-end;justify-content:center;padding:12px}
+@media (min-width:640px){.overlay{align-items:center}}
+.dlg{background:var(--paper);color:var(--ink);width:100%;max-width:520px;border-radius:24px;padding:20px 18px calc(18px + env(safe-area-inset-bottom,0px));box-shadow:0 10px 40px rgba(0,0,0,.3);max-height:90vh;overflow:auto}
+.dlg h2{margin:0 0 6px}
+.dlg .bigsave{font-size:38px;font-weight:900;color:var(--brand)}
+.dlg .row2{display:flex;gap:10px;margin-top:14px}.dlg .row2>*{flex:1}
+.celebrate{text-align:center}
+.celebrate .badge{font-size:72px;line-height:1.1}
+.celebrate .lvl{font-size:28px;font-weight:900;color:var(--brand-dark)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));z-index:120;background:var(--brand-dark);color:#fff;font-weight:800;padding:12px 18px;border-radius:16px;box-shadow:var(--shadow);max-width:90vw;text-align:center}
+#confetti{position:fixed;inset:0;z-index:110;pointer-events:none}
+.levels{display:grid;gap:6px}
+.lv{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;background:var(--grey);font-weight:800}
+.lv.got{background:var(--soft);color:var(--brand-dark)}
+.lv .ic{font-size:24px}.lv .am{margin-left:auto;font-weight:700;color:var(--muted)}
+.months{display:flex;align-items:flex-end;gap:6px;height:150px;padding-top:8px}
+.months .m{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:12px;color:var(--muted)}
+.months .b{width:100%;max-width:38px;background:linear-gradient(180deg,#34b04a,#23963a);border-radius:8px 8px 3px 3px;min-height:3px}
+.months .v{font-size:11px;font-weight:800;color:var(--ink)}
+.trip{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.trip .del{border:0;background:transparent;color:var(--bad);font:inherit;font-weight:700;cursor:pointer}
+/* ===== Lijst met aantallen ===== */
+ul.items li{flex-wrap:wrap;row-gap:6px}
+ul.items li .iname{flex:1 1 140px;font-weight:700}
+.qty{display:flex;align-items:center;gap:6px}
+.qty b{min-width:86px;text-align:center;font-size:16px}
+ul.items li .qb{width:44px;height:44px;border-radius:12px;border:2px solid var(--brand);background:transparent;color:var(--brand);font-size:24px;font-weight:900;line-height:1;cursor:pointer}
+ul.items li .idel{width:44px;height:44px}
 </style>
 </head>
 <body>
@@ -210,6 +247,16 @@ input[type=text],input[type=number],textarea,select,.pw{width:100%;font:inherit;
   <button class="bigbtn white" data-go="viewLoc"><svg viewBox="0 0 24 24" class="ico"><path d="M12 22.5s7.5-7.4 7.5-12.6a7.5 7.5 0 1 0-15 0c0 5.2 7.5 12.6 7.5 12.6z" fill="#1f6fd1"/><circle cx="12" cy="9.8" r="2.8" fill="#fff"/></svg><span>Kies locatie</span><span class="chev">›</span></button>
   <button class="bigbtn grey" data-go="viewStores"><span class="ico emo">🏪</span><span>Supermarkten</span><span class="chev">›</span></button>
   <p class="homeinfo" id="homeInfo"></p>
+  <button class="savecard hidden" id="saveCard" data-go="viewSavings"></button>
+</div>
+
+<!-- ===== MIJN BESPARING ===== -->
+<div id="viewSavings" class="hidden">
+  <section class="block" id="savTop"></section>
+  <section class="block"><h2>Niveaus</h2><div class="levels" id="savLevels"></div></section>
+  <section class="block"><h2>Bespaard per maand</h2><div id="savMonths"></div></section>
+  <section class="block"><h2>Mijn boodschappenrondes</h2><div id="savTrips"></div>
+    <p class="muted">Besparing = korting t.o.v. de normale prijs van de producten die in de aanbieding waren. Met kassabedrag: normale prijs van je hele lijst min wat je betaalde. Berekend, niet gecontroleerd door de winkel.</p></section>
 </div>
 
 <!-- ===== BOODSCHAPPEN ===== -->
@@ -295,6 +342,8 @@ input[type=text],input[type=number],textarea,select,.pw{width:100%;font:inherit;
 
 <footer class="src">Aanbiedingen via <a href="https://www.prijsprofeet.nl" target="_blank" rel="noopener">PrijsProfeet</a> · Reguliere prijzen via <a href="https://www.checkjebon.nl" target="_blank" rel="noopener">Checkjebon.nl</a> · Winkels © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a><br>Prijzen zijn indicatief; de prijs in de winkel is leidend.</footer>
 </main>
+<div id="dlgHost"></div>
+<canvas id="confetti" class="hidden"></canvas>
 <nav class="bottomnav hidden" id="bottomnav">
   <button data-go="viewHome"><span>🏠</span>Home</button>
   <button data-go="viewList"><span>📝</span>Boodschappen</button>
@@ -341,7 +390,8 @@ const CONFIG = {
     cola:      { qty: '1.5 l', must: /\b(coca-cola|coca cola|cola regular|cola original|cola)\b/, alt: null, ex: /zero|light|max\b|cherry|vanilla|lime|drop|snoep|rum|lolly|ijs\b|whisky|bacardi|flesjes|kauw|siroop|cafeine|energy/ },
     wasmiddel: { qty: null,    must: /\b(wasmiddel|waspoeder|wascapsules|waspods|vloeibaar wasmiddel)\b/, alt: null, ex: /afwas|verzacht|vlek|vaatwas|handzeep|display|proef|wolwas|bal\b|net\b|doekjes/ },
     brood:     { qty: '800 g', must: /\b(volkoren|tarwe|bruin|wit|meergranen|tijger|casino|waldkorn|spelt|vloer|boeren|desem)\s*brood\b|\bbrood\b.*\b(volkoren|tarwe|bruin|wit|heel|half)\b|\b(volkorenbrood|tarwebrood|bruinbrood|witbrood|tijgerbrood|casinobrood|meergranenbrood)\b/, alt: null, ex: /meel|mix|beleg|krenten|suiker|kokos|ontbijtkoek|rogge|kerst|stol|broodje|beschuit|paneer|toast|chips|diepvries|afbak|glutenvrij|knoflook|pudding|trommel|zak\b/ },
-    boter:     { qty: '250 g', must: /\b(roomboter|boter ongezouten|boter gezouten|grasboter)\b/, alt: /\b(margarine|halvarine|blue band|becel)\b/, ex: /pinda|koek|stroop|kruiden|babbelaar|cake|croissant|bladerdeeg|sprits|bak en braad|vloeibaar|ham|saus/ },
+    roomboter: { qty: '250 g', must: /\b(roomboter|boter ongezouten|boter gezouten|grasboter)\b/, alt: /\b(margarine|halvarine|blue band|becel)\b/, minPack: '200 g', ex: /pinda|koek|stroop|kruiden|babbelaar|cake|croissant|bladerdeeg|sprits|bak en braad|vloeibaar|ham|saus|kano|taart|gebak|amandel|speculaas|wafel|bol\b|bolletje|broodje|creme|bonbon|kruimel|deeg|pasteit|saucijs|cookie|biscuit|tompoes|soes|kaneel|rozijn|krakeling|brioche|cracker|jodenkoek|bitterkoek|appel|chocola|karamel|fudge|ijs\b|toffee|reep|carre|puntjes/ },
+    boter:     { qty: '250 g', must: /\b(roomboter|boter ongezouten|boter gezouten|grasboter)\b/, alt: /\b(margarine|halvarine|blue band|becel)\b/, minPack: '200 g', ex: /pinda|koek|stroop|kruiden|babbelaar|cake|croissant|bladerdeeg|sprits|bak en braad|vloeibaar|ham|saus|kano|taart|gebak|amandel|speculaas|wafel|bol\b|bolletje|broodje|creme|bonbon|kruimel|deeg|pasteit|saucijs|cookie|biscuit|tompoes|soes|kaneel|rozijn|krakeling|brioche|cracker|jodenkoek|bitterkoek|appel|chocola|karamel|fudge|ijs\b|toffee|reep|carre|puntjes/ },
     eieren:    { qty: '10 st', must: /\b(eieren|scharreleieren|vrije uitloop eieren|biologische eieren)\b/, alt: null, ex: /paas|chocola|snoep|salade|noodle|pasta|kinder|kwartel|gekookte|omelet/ },
     druiven:   { qty: '500 g', must: /\bdruiven\b/, alt: null, ex: /confituur|drink|sap|mr cool|jam|rozijn|snoep|gedroogd|wijn/ },
     bananen:   { qty: null,    must: /\b(bananen|banaan|bananentros)\b/, alt: null, ex: /chips|yoghurt|drink|smoothie|snoep|baby|brood|cake|knijp/ },
@@ -523,6 +573,38 @@ function advise(items, chains, km, min, eurPerKm, maxStores, today) {
   return { baskets, singles, cheapest, smartest, easiest, partial };
 }
 
+
+/* ===================== Aantal per lijstregel ===================== */
+/* Verpakkingswoord per producttype: [enkelvoud, meervoud] */
+const PACK_WORDS = [
+  [/pindakaas|jam|appelmoes|appelstroop|hagelslag(?!.*doos)|chocopasta|honing|augurk|olijven|pesto|mosterd/, ['pot', 'potten']],
+  [/cola|sap|jus|limonade|frisdrank|water|wijn|olie|ketchup|mayonaise|fritessaus|wasmiddel|wasverzachter|afwasmiddel|azijn|siroop|shampoo|douchegel|yoghurtdrank/, ['fles', 'flessen']],
+  [/melk|vla|yoghurt|kwark|karnemelk|slagroom|kookroom|koffie|thee|rijst|pasta|spaghetti|macaroni|suiker|bloem|boter|margarine|halvarine|beschuit|crackers|koek|stroopwafel|cornflakes|muesli|toiletpapier|keukenpapier|luiers|vuilniszak/, ['pak', 'pakken']],
+  [/chips|aardappel|uien|wortel|appels|peren|sinaasappels|mandarijn|snoep|drop|friet|patat|kroket|frikandel|ijsblokjes|zout/, ['zak', 'zakken']],
+  [/huzarensalade|salade|druiven|aardbei|bessen|champignons|tomaten|kipfilet|gehakt|vlees|vis|ham|kaas|worst|tapenade|hummus|smeerkaas/, ['bakje', 'bakjes']],
+  [/eieren|ei\b|vaatwastablet|wascapsule|pads|cups|thee/, ['doos', 'dozen']],
+  [/blik|bonen|mais|tomatenpuree|soep|tonijn|bier/, ['blik', 'blikken']]
+];
+function packWord(name, n) { const t = norm(name); for (const [re, w] of PACK_WORDS) if (re.test(t)) return n === 1 ? w[0] : w[1]; return n === 1 ? 'stuk' : 'stuks'; }
+/* lijstregel: { name, count } — oude tekstregels ("2 koffie", "2 pak boter") worden automatisch omgezet */
+const MEASURE = /^(kg|kilo|g|gr|gram|ons|l|liter|ltr|ml|cl)\b/i;
+function normEntry(x) {
+  if (x && typeof x === 'object') return { name: String(x.name || '').trim(), count: Math.max(1, Math.round(+x.count || 1)) };
+  const s = String(x || '').trim();
+  const m = s.match(/^(\d+)\s*(x|×|pak|pakken|pakje|pakjes|zak|zakken|pot|potten|fles|flessen|bakje|bakjes|stuk|stuks|doos|dozen|blik|blikken)?\.?\s+(.+)$/i);
+  if (m && /^eier/i.test(m[3].trim()) && !m[2] && +m[1] >= 3) return { name: `${m[1]} stuks eieren`, count: 1 };   // "12 eieren" = 12 stuks
+  if (m && !MEASURE.test(m[3]) && +m[1] > 0 && +m[1] < 100) return { name: m[3].trim(), count: +m[1] };
+  return { name: s, count: 1 };
+}
+/* voor de vergelijking: aantal × verpakking/standaardhoeveelheid */
+function itemFromEntry(e) {
+  const it = parseItem(e.name); if (!it) return null;
+  const c = e.count || 1;
+  it.qty *= c; if (it.amount != null) it.amount *= c;
+  it.raw = c > 1 ? (/^\d/.test(e.name) ? `${c} × ${e.name}` : `${c} ${packWord(e.name, c)} ${e.name}`) : e.name;
+  return it;
+}
+
 /* ===================== Productzoeker (lokaal, fuzzy) ===================== */
 /* Algemene productbegrippen met synoniemen en schrijfwijzen. Kiezen = vergelijken over alle merken en ketens. */
 const CONCEPTS = [
@@ -667,7 +749,7 @@ window.__SB = { get DATA() { return DATA; } };   // alleen voor testen in de bro
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const km1 = v => v == null ? '–' : v.toFixed(1).replace('.', ',');
-const VIEWS = ['viewLogin', 'viewWait', 'viewHome', 'viewList', 'viewDeals', 'viewLoc', 'viewStores', 'viewSettings', 'viewAdmin'];
+const VIEWS = ['viewLogin', 'viewWait', 'viewHome', 'viewList', 'viewDeals', 'viewLoc', 'viewStores', 'viewSettings', 'viewAdmin', 'viewSavings'];
 const show = (...ids) => VIEWS.forEach(v => $(v).classList.toggle('hidden', !ids.includes(v)));
 const fmtDate = iso => iso ? new Date(iso).toLocaleString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '–';
 
@@ -712,26 +794,128 @@ async function start(u) {
   }
   ROLE = acc.role || 'user';
   $('bottomnav').classList.remove('hidden'); $('adminBtn').classList.toggle('hidden', ROLE !== 'admin');
-  initList(); loadData(); go('viewHome');
+  initList(); loadData(); go('viewHome'); loadTrips();
 }
 /* ---------- Navigatie (startscherm + balk onderin) ---------- */
 function go(view) {
   if (view === 'viewAdmin' && ROLE !== 'admin') view = 'viewSettings';
   show(view); window.scrollTo(0, 0);
-  const navKey = view === 'viewAdmin' ? 'viewSettings' : view;
+  const navKey = view === 'viewAdmin' ? 'viewSettings' : view === 'viewSavings' ? 'viewHome' : view;
   document.querySelectorAll('#bottomnav button').forEach(b => b.dataset.go === navKey ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
   if (view === 'viewHome') renderHome();
   if (view === 'viewList') renderWhere();
   if (view === 'viewDeals') renderDeals();
   if (view === 'viewAdmin') renderAdmin();
+  if (view === 'viewSavings') renderSavings();
 }
 document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) { e.preventDefault(); go(b.dataset.go); } });
 function placeText() { return [state.postcode, state.place].filter(Boolean).join(' ') || ''; }
 function renderHome() {
+  renderSaveCard();
   const n = state.items.length, pl = placeText();
   $('homeInfo').textContent = (n ? `${n} ${n === 1 ? 'product' : 'producten'} op je lijst` : 'Je lijst is nog leeg') + (pl ? ` · ${pl}, max ${state.maxKm} km` : ' · kies eerst je locatie');
 }
 function renderWhere() { const pl = placeText(); $('whereLine').innerHTML = pl ? `📍 ${esc(pl)} · max ${state.maxKm} km · <a href="#" data-go="viewLoc">wijzigen</a>` : `📍 <a href="#" data-go="viewLoc">Kies eerst je locatie</a>`; }
+
+/* ---------- Beloningssysteem: eigen spaarpot per account ---------- */
+const LEVELS = [
+  { at: 10, ic: '🌱', t: 'Slimme Starter', c: 'De eerste tientjes zijn binnen. Goed begin!' },
+  { at: 25, ic: '🛒', t: 'Lijstjesmaker', c: 'Dat is al een flinke tas boodschappen gratis.' },
+  { at: 50, ic: '🏷️', t: 'Koopjesjager', c: 'Vijftig euro! Daar ga je samen gezellig van uit eten.' },
+  { at: 100, ic: '⭐', t: 'Aanbiedingen-Expert', c: 'Honderd euro bespaard. Dat is bijna een volle tank benzine!' },
+  { at: 250, ic: '🏆', t: 'Bespaarkampioen', c: 'Kwart duizend! Dat is een weekendje weg.' },
+  { at: 500, ic: '👑', t: 'Boodschappenbaas', c: 'Vijfhonderd euro. Daar kan geen supermarkt tegenop.' },
+  { at: 1000, ic: '💎', t: 'Legende van de Lijst', c: 'Duizend euro bespaard. Legendarisch!' }
+];
+let TRIPS = [];
+const tripsCol = () => collection(db, 'users', auth.currentUser.uid, 'trips');
+const totalSaved = () => TRIPS.reduce((s, t) => s + (t.saving || 0), 0);
+const levelOf = v => LEVELS.filter(l => v >= l.at).pop() || null;
+const nextLevel = v => LEVELS.find(l => v < l.at) || null;
+async function loadTrips() {
+  try { const q = await getDocs(tripsCol()); TRIPS = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.at.localeCompare(a.at)); }
+  catch (e) { console.error(e); TRIPS = []; }
+  renderSaveCard();
+}
+function renderSaveCard() {
+  const c = $('saveCard'); if (!c) return;
+  const tot = totalSaved(), lv = levelOf(tot), nx = nextLevel(tot);
+  const from = lv ? lv.at : 0, pct = nx ? Math.min(100, Math.round((tot - from) / (nx.at - from) * 100)) : 100;
+  c.innerHTML = `<div class="lbl">💰 Mijn besparing</div><div class="amt">${eur(tot)}</div><div class="ttl">${lv ? lv.ic + ' ' + esc(lv.t) : 'Nog geen niveau – doe je eerste boodschappen!'}</div>
+    <div class="prog"><i style="width:${pct}%"></i></div><div class="nxt">${nx ? `Nog ${eur(nx.at - tot)} tot ${nx.ic} ${esc(nx.t)}` : 'Hoogste niveau bereikt!'} · ${TRIPS.length} ${TRIPS.length === 1 ? 'ronde' : 'rondes'} ›</div>`;
+  c.classList.remove('hidden');
+}
+/* besparing van een advies: alleen aanbiedingskorting t.o.v. normale prijs */
+function optionLines(kind) {
+  const A = LAST.adv, opt = kind === 'smart' ? A.smartest : kind === 'cheap' ? A.cheapest : A.easiest;
+  if (!opt) return null;
+  const lines = kind === 'smart' ? opt.lines.map(l => ({ it: l.item, p: l.best.price })) : A.baskets[opt.idx[0]].lines.map(l => ({ it: l.item, p: l.price }));
+  let goods = 0, normal = 0, saving = 0;
+  for (const { p } of lines) { if (!p) continue; goods += p.cost; const nrm = p.kind === 'aanbieding' && p.normal != null && p.normal > p.cost ? p.normal : p.cost; normal += nrm; saving += nrm - p.cost; }
+  return { opt, stores: opt.idx.map(i => LAST.chains[i].name), goods, normal, saving, n: lines.length, items: lines.map(l => l.it.raw) };
+}
+function closeDlg() { $('dlgHost').innerHTML = ''; }
+function openDone(kind) {
+  const o = optionLines(kind); if (!o) return;
+  $('dlgHost').innerHTML = `<div class="overlay" id="ovl"><div class="dlg" role="dialog" aria-modal="true">
+    <h2>✅ Boodschappen gedaan</h2>
+    <p class="muted">${esc(o.stores.join(' + '))} · ${o.n} producten · verwacht ${eur(o.goods)}</p>
+    <p style="margin:10px 0 0">Berekende besparing (aanbiedingskorting):</p><div class="bigsave" id="dlgSave">${eur(o.saving)}</div>
+    <label class="f" for="receipt">Echt kassabedrag (optioneel)</label>
+    <input type="number" id="receipt" inputmode="decimal" step="0.01" min="0" placeholder="bv. ${o.goods.toFixed(2).replace('.', ',')}">
+    <p class="muted" id="rcptNote">Alleen invullen als de bon over deze lijst gaat. Normale prijs van de lijst: ${eur(o.normal)}.</p>
+    <div class="row2"><button class="btn2" id="dlgCancel">Annuleren</button><button class="btn" id="dlgSaveBtn">Opslaan</button></div></div></div>`;
+  const calc = () => { const v = parseFloat(String($('receipt').value).replace(',', '.')); if (isNaN(v) || v <= 0) return { saving: o.saving, receipt: null };
+    const sv = Math.max(0, o.normal - v); $('rcptNote').textContent = v > o.normal ? `Je betaalde meer dan de normale prijs van de lijst (${eur(o.normal)}); besparing telt als €0. Andere producten gekocht? Laat het veld dan leeg.` : `Normale prijs van de lijst ${eur(o.normal)} − betaald ${eur(v)}.`; return { saving: sv, receipt: v }; };
+  $('receipt').oninput = () => { $('dlgSave').textContent = eur(calc().saving); };
+  $('dlgCancel').onclick = closeDlg; $('ovl').onclick = e => { if (e.target.id === 'ovl') closeDlg(); };
+  $('dlgSaveBtn').onclick = async () => {
+    const r = calc(), before = totalSaved();
+    const trip = { at: new Date().toISOString(), stores: o.stores, kind, goods: +o.goods.toFixed(2), normal: +o.normal.toFixed(2), savingCalc: +o.saving.toFixed(2), receipt: r.receipt, saving: +r.saving.toFixed(2), items: o.items.slice(0, 60), place: placeText() };
+    $('dlgSaveBtn').disabled = true;
+    try { const id = String(Date.now()); await setDoc(doc(db, 'users', auth.currentUser.uid, 'trips', id), trip); TRIPS.unshift({ id, ...trip }); }
+    catch (e) { alert('Opslaan mislukt: ' + e.message); $('dlgSaveBtn').disabled = false; return; }
+    closeDlg(); renderSaveCard();
+    const after = totalSaved(), lvB = levelOf(before), lvA = levelOf(after);
+    if (lvA && (!lvB || lvA.at > lvB.at)) celebrate(lvA, trip.saving, after); else toast(`👏 ${eur(trip.saving)} bespaard! Totaal ${eur(after)}`);
+  };
+}
+function toast(t) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 3500); }
+function celebrate(lv, saved, tot) {
+  $('dlgHost').innerHTML = `<div class="overlay" id="ovl"><div class="dlg celebrate"><div class="badge">${lv.ic}</div><p class="muted" style="margin:4px 0">Nieuw niveau bereikt!</p>
+    <div class="lvl">${esc(lv.t)}</div><p style="font-size:18px;font-weight:700">${esc(lv.c)}</p>
+    <p class="muted">Deze ronde ${eur(saved)} · totaal ${eur(tot)} bespaard</p><button class="btn" id="celOk">Lekker bezig! 🎉</button></div></div>`;
+  $('celOk').onclick = () => { closeDlg(); stopConfetti(); };
+  confetti();
+}
+let confRun = null;
+function confetti() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const c = $('confetti'), x = c.getContext('2d'); c.classList.remove('hidden'); c.width = innerWidth; c.height = innerHeight;
+  const cols = ['#34b04a', '#2b80e6', '#f7b733', '#f04e4e', '#ffd23f', '#9b59b6'];
+  const P = Array.from({ length: 160 }, () => ({ x: Math.random() * c.width, y: -20 - Math.random() * c.height * 0.5, vx: (Math.random() - .5) * 3, vy: 2 + Math.random() * 4, r: 4 + Math.random() * 6, a: Math.random() * 6, va: (Math.random() - .5) * .3, col: cols[Math.floor(Math.random() * cols.length)] }));
+  const t0 = performance.now();
+  const step = t => { x.clearRect(0, 0, c.width, c.height); for (const p of P) { p.x += p.vx; p.y += p.vy; p.vy += .03; p.a += p.va; x.save(); x.translate(p.x, p.y); x.rotate(p.a); x.fillStyle = p.col; x.fillRect(-p.r / 2, -p.r / 4, p.r, p.r / 2); x.restore(); }
+    if (t - t0 < 4000) confRun = requestAnimationFrame(step); else stopConfetti(); };
+  confRun = requestAnimationFrame(step);
+}
+function stopConfetti() { if (confRun) cancelAnimationFrame(confRun); confRun = null; const c = $('confetti'); c.getContext('2d').clearRect(0, 0, c.width, c.height); c.classList.add('hidden'); }
+function renderSavings() {
+  const tot = totalSaved(), lv = levelOf(tot), nx = nextLevel(tot);
+  const best = TRIPS.slice().sort((a, b) => b.saving - a.saving)[0];
+  $('savTop').innerHTML = `<h2>💰 Mijn besparing</h2><div class="bigsave" style="font-size:40px;font-weight:900;color:var(--brand)">${eur(tot)}</div>
+    <p style="font-weight:800;margin:4px 0">${lv ? lv.ic + ' ' + esc(lv.t) : 'Nog geen niveau'}</p>
+    <p class="muted">${nx ? `Nog ${eur(nx.at - tot)} tot ${nx.ic} ${esc(nx.t)}.` : 'Je hebt het hoogste niveau!'}${best ? ` Beste ronde: ${eur(best.saving)} (${new Date(best.at).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}).` : ''}</p>`;
+  $('savLevels').innerHTML = LEVELS.map(l => `<div class="lv ${tot >= l.at ? 'got' : ''}"><span class="ic">${tot >= l.at ? l.ic : '🔒'}</span>${esc(l.t)}<span class="am">${eur(l.at)}</span></div>`).join('');
+  const months = []; const now = new Date();
+  for (let k = 5; k >= 0; k--) { const d = new Date(now.getFullYear(), now.getMonth() - k, 1); const key = d.toISOString().slice(0, 7); months.push({ key, label: d.toLocaleDateString('nl-NL', { month: 'short' }), v: TRIPS.filter(t => t.at.slice(0, 7) === key).reduce((s, t) => s + t.saving, 0) }); }
+  const mx = Math.max(1, ...months.map(m => m.v));
+  $('savMonths').innerHTML = `<div class="months">${months.map(m => `<div class="m"><span class="v">${m.v ? eur(m.v) : ''}</span><div class="b" style="height:${Math.round(m.v / mx * 100)}%"></div>${m.label}</div>`).join('')}</div>`;
+  $('savTrips').innerHTML = TRIPS.length ? TRIPS.map(t => `<div class="trip"><div><b>${eur(t.saving)}</b> bespaard<div class="dsub muted">${new Date(t.at).toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' })} · ${esc((t.stores || []).join(' + '))}${t.receipt != null ? ` · bon ${eur(t.receipt)}` : ''}</div></div><button class="del" data-del="${t.id}">ongedaan maken</button></div>`).join('') : '<p class="muted">Nog geen rondes. Vergelijk je lijst en tik daarna op "Ik heb deze boodschappen gedaan".</p>';
+  $('savTrips').querySelectorAll('[data-del]').forEach(b => b.onclick = async () => { if (!confirm('Deze boodschappenronde verwijderen?')) return;
+    try { await deleteDoc(doc(db, 'users', auth.currentUser.uid, 'trips', b.dataset.del)); TRIPS = TRIPS.filter(t => t.id !== b.dataset.del); renderSaveCard(); renderSavings(); } catch (e) { alert('Verwijderen mislukt: ' + e.message); } });
+}
+
 let addToListFn = null;
 /* Aanbiedingen-scherm: alle actuele acties bij de gekozen ketens, grootste korting eerst */
 let dealTimer = null;
@@ -835,13 +1019,17 @@ function renderSuggest() {
 let listInit = false;
 function initList() {
   if (listInit) return; listInit = true;
+  state.items = (state.items || []).map(normEntry).filter(e => e.name); save();
   const renderItems = () => {
-    $('itemList').innerHTML = state.items.map((t, i) => `<li><span>${esc(t)}</span><button aria-label="Verwijder ${esc(t)}" data-i="${i}">✕</button></li>`).join('');
+    $('itemList').innerHTML = state.items.map((e, i) => `<li><span class="iname">${esc(e.name)}</span><span class="qty"><button class="qb" data-dec="${i}" aria-label="Minder">−</button><b>${/^\d/.test(e.name) ? e.count + ' ×' : e.count + ' ' + packWord(e.name, e.count)}</b><button class="qb" data-inc="${i}" aria-label="Meer">+</button></span><button class="idel" aria-label="Verwijder ${esc(e.name)}" data-i="${i}">✕</button></li>`).join('');
     $('emptyList').classList.toggle('hidden', state.items.length > 0);
-    $('itemList').querySelectorAll('button').forEach(b => b.onclick = () => { state.items.splice(+b.dataset.i, 1); save(); renderItems(); });
+    $('itemList').querySelectorAll('[data-i]').forEach(b => b.onclick = () => { state.items.splice(+b.dataset.i, 1); save(); renderItems(); });
+    $('itemList').querySelectorAll('[data-inc]').forEach(b => b.onclick = () => { const e = state.items[+b.dataset.inc]; e.count = Math.min(99, e.count + 1); save(); renderItems(); });
+    $('itemList').querySelectorAll('[data-dec]').forEach(b => b.onclick = () => { const e = state.items[+b.dataset.dec]; if (e.count > 1) { e.count--; save(); renderItems(); } });
   };
-  const addItems = t => { t.split(/\n|,/).map(s => s.trim()).filter(Boolean).forEach(s => { state.items.push(s); remember(s); }); save(); renderItems(); };
-  const addOne = (t, quiet) => { t = (t || '').trim(); if (!t) return; state.items.push(t); remember(t); save(); renderItems(); if (quiet) return; $('itemInput').value = ''; $('suggest').classList.add('hidden'); $('itemInput').focus(); };
+  const pushEntry = en => { const ex = state.items.find(x => norm(x.name) === norm(en.name)); if (ex) ex.count = Math.min(99, ex.count + en.count); else state.items.push(en); remember(en.name); };
+  const addItems = t => { t.split(/\n|,/).map(s => s.trim()).filter(Boolean).forEach(s => pushEntry(normEntry(s))); save(); renderItems(); };
+  const addOne = (t, quiet) => { t = (t || '').trim(); if (!t) return; pushEntry(normEntry(t)); save(); renderItems(); if (quiet) return; $('itemInput').value = ''; $('suggest').classList.add('hidden'); $('itemInput').focus(); };
   addToListFn = addOne;
   $('dealInput').addEventListener('input', () => { clearTimeout(dealTimer); dealTimer = setTimeout(renderDeals, 200); });
   $('storeBtn').onclick = renderStores;
@@ -853,7 +1041,7 @@ function initList() {
   $('suggest').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.q != null) { $('itemInput').value = b.dataset.q; renderSuggest(); $('itemInput').focus(); } else addOne(b.dataset.add); });
   document.addEventListener('click', e => { if (!e.target.closest('#suggest') && e.target !== $('itemInput')) $('suggest').classList.add('hidden'); });
   $('itemInput').addEventListener('paste', e => { const t = (e.clipboardData || window.clipboardData).getData('text'); if (t.includes('\n')) { e.preventDefault(); addItems(t); } });
-  $('sampleBtn').onclick = () => { state.items = ['2 liter melk', '1 koffie', '1 kaas', '500 g kipfilet', '1 cola', '1 wasmiddel', '1 brood']; save(); renderItems(); };
+  $('sampleBtn').onclick = () => { state.items = [['halfvolle melk', 2], ['koffie', 1], ['kaas', 1], ['kipfilet', 1], ['cola', 1], ['wasmiddel', 1], ['brood', 1]].map(([name, count]) => ({ name, count })); save(); renderItems(); };
   renderItems();
   const seg = $('maxStoresSeg'); const paint = () => seg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.v === +state.maxStores)));
   seg.querySelectorAll('button').forEach(b => b.onclick = () => { state.maxStores = +b.dataset.v; save(); paint(); }); paint();
@@ -915,7 +1103,7 @@ async function matrix(points) {
 /* ---------- Vergelijken ---------- */
 let LAST = null;
 async function search() {
-  const items = state.items.map(parseItem).filter(Boolean);
+  const items = state.items.map(normEntry).map(itemFromEntry).filter(Boolean);
   if (!items.length) return setStatus('Zet eerst iets op je lijst.', true);
   if (!state.place && !state.postcode) return setStatus('Vul je woonplaats of postcode in.', true);
   $('searchBtn').disabled = true; $('result').innerHTML = '';
@@ -978,7 +1166,8 @@ function adviceCard(i, icon, title, opt, kind) {
       <div class="totals"><div><span>Boodschappen</span><span>${eur(opt.goods)}</span></div>
       <div><span>Reiskosten (${km1(opt.km)} km × ${eur(state.eurKm)})</span><span>${eur(opt.travel)}</span></div>
       <div><b>Totaal</b><b>${eur(total)}</b></div></div>
-      <div class="why"><b>Waarom?</b><br>${esc(reason(kind, opt))}<br><span class="muted">${onOffer} van ${lines.length} producten in de aanbieding${unsure ? ` · ${unsure} met een onzekere productmatch (controleer)` : ''}.</span></div></div>`;
+      <div class="why"><b>Waarom?</b><br>${esc(reason(kind, opt))}<br><span class="muted">${onOffer} van ${lines.length} producten in de aanbieding${unsure ? ` · ${unsure} met een onzekere productmatch (controleer)` : ''}.</span></div>
+      <button class="btn donebtn" data-done="${kind}">✅ Ik heb deze boodschappen gedaan</button></div>`;
   }
   return `<div class="card-adv" aria-expanded="${open}"><header data-i="${i}"><div><b>${icon} ${title}</b><br><span class="muted">${esc(names)} · ${opt.idx.length} ${opt.idx.length === 1 ? 'winkel' : 'winkels'} · ${km1(opt.km)} km</span></div><div style="text-align:right"><span class="big">${eur(total)}</span><br><span class="muted">incl. reiskosten</span></div></header>${body}</div>`;
 }
@@ -1011,6 +1200,7 @@ function renderResult() {
     <p class="muted">Aanbiedingen zijn landelijke acties, niet per filiaal bevestigd. Normale prijzen zijn webshopprijzen.</p></section>`;
   $('result').innerHTML = h;
   $('result').querySelectorAll('header[data-i]').forEach(e => e.onclick = () => { LAST.open = LAST.open === +e.dataset.i ? -1 : +e.dataset.i; renderResult(); });
+  $('result').querySelectorAll('[data-done]').forEach(b => b.onclick = () => openDone(b.dataset.done));
   $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
